@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Smart Life & Finance</title>
+    <title>Smart Life & Finance Ultimate</title>
     
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0f172a">
@@ -36,11 +36,10 @@
             background-color: var(--bg);
             color: var(--text-main);
             padding: 15px;
-            padding-bottom: 50px;
+            padding-bottom: 60px;
             user-select: none;
         }
 
-        /* App Header */
         .app-header {
             display: flex;
             justify-content: space-between;
@@ -67,7 +66,6 @@
             font-weight: bold;
         }
 
-        /* Summary Glass Cards */
         .dashboard-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -84,23 +82,12 @@
             text-align: center;
         }
 
-        .stat-card span {
-            display: block;
-            font-size: 10px;
-            color: var(--text-sub);
-            margin-bottom: 5px;
-        }
-
-        .stat-card strong {
-            font-size: 13px;
-            font-weight: 700;
-        }
-
+        .stat-card span { display: block; font-size: 10px; color: var(--text-sub); margin-bottom: 5px; }
+        .stat-card strong { font-size: 13px; font-weight: 700; }
         .stat-card.income strong { color: var(--success); }
         .stat-card.expense strong { color: var(--danger); }
         .stat-card.balance strong { color: #38bdf8; }
 
-        /* Section Container */
         .glass-box {
             background: var(--card-bg);
             backdrop-filter: blur(12px);
@@ -115,24 +102,14 @@
             margin-bottom: 15px;
             display: flex;
             align-items: center;
-            gap: 8px;
+            justify-content: space-between;
             color: var(--text-main);
             border-bottom: 1px solid var(--card-border);
             padding-bottom: 10px;
         }
 
-        /* Form Inputs */
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        label {
-            font-size: 11px;
-            font-weight: 600;
-            color: var(--text-sub);
-        }
+        .form-group { display: flex; flex-direction: column; gap: 10px; }
+        label { font-size: 11px; font-weight: 600; color: var(--text-sub); }
 
         input, select, textarea {
             background: rgba(15, 23, 42, 0.6);
@@ -145,9 +122,7 @@
             width: 100%;
         }
 
-        input:focus, select:focus, textarea:focus {
-            border-color: var(--primary);
-        }
+        input:focus, select:focus, textarea:focus { border-color: var(--primary); }
 
         .btn-action {
             background: var(--primary-gradient);
@@ -165,9 +140,18 @@
 
         .btn-action:active { transform: scale(0.97); }
 
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text-main);
+            border: 1px solid var(--card-border);
+            padding: 8px 12px;
+            border-radius: 10px;
+            font-size: 11px;
+            cursor: pointer;
+        }
+
         .hidden { display: none !important; }
 
-        /* Expense Dynamic Fields */
         .sub-field-box {
             background: rgba(255, 255, 255, 0.03);
             padding: 12px;
@@ -178,8 +162,7 @@
             gap: 10px;
         }
 
-        /* Lists Styling */
-        ul { list-style: none; max-height: 300px; overflow-y: auto; }
+        ul { list-style: none; max-height: 350px; overflow-y: auto; }
 
         .item-card {
             background: rgba(15, 23, 42, 0.4);
@@ -192,16 +175,10 @@
             align-items: center;
         }
 
-        .item-info {
-            display: flex;
-            flex-direction: column;
-            gap: 3px;
-        }
-
+        .item-info { display: flex; flex-direction: column; gap: 3px; }
         .item-title { font-size: 13px; font-weight: bold; }
         .item-meta { font-size: 10px; color: var(--text-sub); }
         .item-note { font-size: 11px; color: #cbd5e1; margin-top: 2px; }
-
         .item-amount { font-size: 13px; font-weight: bold; color: var(--danger); }
 
         .btn-delete {
@@ -215,28 +192,49 @@
             margin-right: 8px;
         }
 
-        /* Task Specifics */
-        .task-card {
-            border-right: 3px solid var(--primary);
-        }
+        .task-card { border-right: 3px solid var(--primary); }
+        .task-card.done { opacity: 0.5; text-decoration: line-through; border-right-color: var(--success); }
 
-        /* Filter Controls Grid */
         .filter-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 10px;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
+        }
+
+        /* Analytics Chart Bars */
+        .chart-bar-wrap {
+            margin-bottom: 12px;
+        }
+        .chart-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            margin-bottom: 4px;
+        }
+        .bar-bg {
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+            height: 8px;
+            overflow: hidden;
+        }
+        .bar-fill {
+            height: 100%;
+            border-radius: 10px;
+            background: var(--primary-gradient);
+            width: 0%;
+            transition: width 0.4s ease;
         }
     </style>
 </head>
 <body>
 
 <div class="app-header">
-    <div class="app-title">⚡ Smart System</div>
+    <div class="app-title">⚡ Smart System Pro</div>
     <div class="month-badge" id="current-month-label">--</div>
 </div>
 
-<!-- DASHBOARD STATS -->
+<!-- DASHBOARD -->
 <div class="dashboard-grid">
     <div class="stat-card income">
         <span>مووچە</span>
@@ -252,27 +250,41 @@
     </div>
 </div>
 
-<!-- 1. SET SALARY -->
+<!-- ANALYTICS CHART -->
 <div class="glass-box">
-    <h2>💵 دیاریکردنی مووچەی مانگانە</h2>
+    <h2>📊 ئامار و ڕێژەی مەسرەفەکان</h2>
+    <div id="analytics-container"></div>
+</div>
+
+<!-- SALARY -->
+<div class="glass-box">
+    <h2>💵 دیاریکردنی مووچە</h2>
     <div class="form-group">
         <input type="number" id="salary-input" placeholder="بڕی مووچە (د.ع)">
-        <button class="btn-action" onclick="saveSalary()">تۆمارکردنی مووچە</button>
+        <button class="btn-action" onclick="saveSalary()">تۆمارکردن</button>
     </div>
 </div>
 
-<!-- 2. WORK / TASKS SECTION -->
+<!-- TASKS -->
 <div class="glass-box">
     <h2>💼 تۆمارکردنی کاری ڕۆژانە</h2>
     <div class="form-group">
-        <label>ناوی کار / ئیش:</label>
-        <input type="text" id="task-name" placeholder="نموونە: کۆبوونەوە، پاککردنەوە، پڕۆژە">
+        <label>ناوی کار:</label>
+        <input type="text" id="task-name" placeholder="ناوی کارەکە...">
         
-        <label>بەروار:</label>
-        <input type="date" id="task-date">
+        <div style="display: flex; gap: 10px;">
+            <div style="flex:1;">
+                <label>بەروار:</label>
+                <input type="date" id="task-date">
+            </div>
+            <div style="flex:1;">
+                <label>کات (سەعات):</label>
+                <input type="time" id="task-time">
+            </div>
+        </div>
 
-        <label>تێبینی کارەکە:</label>
-        <input type="text" id="task-note" placeholder="ڕوونکردنەوەی زیاتر...">
+        <label>تێبینی:</label>
+        <input type="text" id="task-note" placeholder="تێبینی...">
 
         <button class="btn-action" onclick="addTask()">زیادکردنی کار</button>
     </div>
@@ -280,14 +292,14 @@
     <ul id="task-list"></ul>
 </div>
 
-<!-- 3. EXPENSES ENTRY -->
+<!-- EXPENSES ENTRY -->
 <div class="glass-box">
-    <h2>💳 تۆمارکردنی مەسرەفی ڕۆژانە</h2>
+    <h2>💳 تۆمارکردنی مەسرەف</h2>
     <div class="form-group">
         <label>بەروار:</label>
         <input type="date" id="exp-date">
 
-        <label>جۆری مەسرەف (کتێگۆری):</label>
+        <label>کتێگۆری:</label>
         <select id="exp-category" onchange="handleCategoryChange()">
             <option value="خواردن / خواردنەوە">🍔 خواردن / خواردنەوە</option>
             <option value="هاتووچۆ">🚕 هاتووچۆ</option>
@@ -295,30 +307,27 @@
             <option value="هیتر">📦 هیتر</option>
         </select>
 
-        <!-- DYNAMIC FIELD: FOOD -->
         <div id="field-food" class="sub-field-box">
-            <label>جۆری خواردن/خواردنەوە:</label>
-            <input type="text" id="food-name" placeholder="نموونە: پیتزا، شەربەت، بەقالی">
-            <label>شوێنی خواردن:</label>
+            <label>جۆری خواردن:</label>
+            <input type="text" id="food-name" placeholder="پیتزا، شەربەت...">
+            <label>شوێن:</label>
             <select id="food-place">
                 <option value="لە دەرەوە">لە دەرەوە</option>
                 <option value="لە ماڵەوە">لە ماڵەوە</option>
             </select>
         </div>
 
-        <!-- DYNAMIC FIELD: TRANSPORT -->
         <div id="field-transport" class="sub-field-box hidden">
-            <label>هۆکاری هاتووچۆ:</label>
+            <label>هۆکار:</label>
             <select id="trans-type">
                 <option value="تەکسی">تەکسی</option>
                 <option value="پاس">پاس</option>
                 <option value="بەنزین">بەنزین</option>
             </select>
-            <label>مسار (لە کوێ بۆ کوێ):</label>
-            <input type="text" id="trans-route" placeholder="نموونە: لە ماڵەوە بۆ کار">
+            <label>لە کوێ بۆ کوێ:</label>
+            <input type="text" id="trans-route" placeholder="لە ماڵەوە بۆ کار...">
         </div>
 
-        <!-- DYNAMIC FIELD: CLOTHES -->
         <div id="field-clothes" class="sub-field-box hidden">
             <label>جۆری جلوبەرگ:</label>
             <select id="clothes-item">
@@ -334,9 +343,8 @@
             </select>
         </div>
 
-        <!-- DYNAMIC FIELD: OTHER -->
         <div id="field-other" class="sub-field-box hidden">
-            <label>ڕوونکردنەوەی جۆرەکە:</label>
+            <label>ڕوونکردنەوە:</label>
             <input type="text" id="other-name" placeholder="بۆ چی بووە؟">
         </div>
 
@@ -344,15 +352,22 @@
         <input type="number" id="exp-amount" placeholder="نرخی مەسرەف">
 
         <label>تێبینی:</label>
-        <input type="text" id="exp-note" placeholder="تێبینیی زیاتر...">
+        <input type="text" id="exp-note" placeholder="تێبینی...">
 
-        <button class="btn-action" onclick="addExpense()">زیادکردنی مەسرەف</button>
+        <button class="btn-action" onclick="addExpense()">زیادکردن</button>
     </div>
 </div>
 
-<!-- 4. ADVANCED FILTER & EXPENSE LIST -->
+<!-- SEARCH & EXPENSE LIST -->
 <div class="glass-box">
-    <h2>🔍 فلتەر و لیستی مەسرەفەکان</h2>
+    <h2>
+        <span>🔍 گەڕان و فلتەر</span>
+        <button class="btn-secondary" onclick="exportToCSV()">📊 Excel</button>
+    </h2>
+
+    <div style="margin-bottom: 12px;">
+        <input type="text" id="search-box" placeholder="🔎 گەڕانی خێرا لە ناونیشان یان تێبینی..." oninput="renderExpenses()">
+    </div>
     
     <div class="filter-grid">
         <div>
@@ -367,9 +382,9 @@
         </div>
 
         <div>
-            <label>ڕێکخستنی نرخ:</label>
+            <label>نرخ:</label>
             <select id="filter-sort" onchange="renderExpenses()">
-                <option value="none">ئاسایی (بەپێی بەروار)</option>
+                <option value="none">بەپێی بەروار</option>
                 <option value="low-high">لە کەمەوە بۆ زۆر</option>
                 <option value="high-low">لە زۆرەوە بۆ کەم</option>
             </select>
@@ -377,16 +392,25 @@
     </div>
 
     <div style="margin-bottom: 15px;">
-        <label>فلتەر بەپێی ڕۆژێکی دیاریکراو:</label>
+        <label>ڕۆژێکی دیاریکراو:</label>
         <input type="date" id="filter-date" onchange="renderExpenses()">
-        <button style="background: none; border: none; color: #38bdf8; font-size: 11px; cursor: pointer; margin-top: 4px;" onclick="clearDateFilter()">پاککردنەوەی فلتەری بەروار</button>
+        <button style="background: none; border: none; color: #38bdf8; font-size: 11px; cursor: pointer; margin-top: 4px;" onclick="clearDateFilter()">پاککردنەوەی بەروار</button>
     </div>
 
     <ul id="expense-list"></ul>
 </div>
 
+<!-- BACKUP & RESTORE -->
+<div class="glass-box">
+    <h2>⚙️ پاراستن و گەڕاندنەوەی داتا</h2>
+    <div style="display: flex; gap: 10px;">
+        <button class="btn-secondary" style="flex:1;" onclick="backupData()">📥 دابەزاندنی Backup</button>
+        <button class="btn-secondary" style="flex:1;" onclick="document.getElementById('restore-file').click()">📤 گەڕاندنەوەی Backup</button>
+        <input type="file" id="restore-file" class="hidden" accept=".json" onchange="restoreData(event)">
+    </div>
+</div>
+
 <script>
-    // Register Service Worker
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('sw.js').catch(err => console.log(err));
     }
@@ -396,7 +420,6 @@
         return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
     }
 
-    // App State
     let monthlyArchives = JSON.parse(localStorage.getItem('monthlyArchives')) || [];
     let currentData = JSON.parse(localStorage.getItem('currentMonthData')) || {
         month: getTodayMonth(),
@@ -405,7 +428,6 @@
         tasks: []
     };
 
-    // Auto Rollover Logic
     function checkAutoMonthRollover() {
         const thisMonth = getTodayMonth();
         if (currentData.month !== thisMonth) {
@@ -416,24 +438,17 @@
                 localStorage.setItem('monthlyArchives', JSON.stringify(monthlyArchives));
             }
 
-            currentData = {
-                month: thisMonth,
-                salary: currentData.salary || 0,
-                expenses: [],
-                tasks: []
-            };
+            currentData = { month: thisMonth, salary: currentData.salary || 0, expenses: [], tasks: [] };
             saveCurrentData();
         }
     }
 
     window.onload = function() {
         checkAutoMonthRollover();
-        
         document.getElementById('task-date').valueAsDate = new Date();
         document.getElementById('exp-date').valueAsDate = new Date();
         document.getElementById('current-month-label').innerText = currentData.month;
         document.getElementById('salary-input').value = currentData.salary || '';
-
         updateUI();
     };
 
@@ -451,20 +466,30 @@
         }
     }
 
-    // Task Logic
+    // Tasks
     function addTask() {
         const name = document.getElementById('task-name').value.trim();
         const date = document.getElementById('task-date').value;
+        const time = document.getElementById('task-time').value;
         const note = document.getElementById('task-note').value.trim();
 
         if (name && date) {
-            currentData.tasks.push({ id: Date.now(), name, date, note });
+            currentData.tasks.push({ id: Date.now(), name, date, time, note, completed: false });
             saveCurrentData();
             document.getElementById('task-name').value = '';
             document.getElementById('task-note').value = '';
             renderTasks();
         } else {
-            alert('تکایە ناوی کارەکە و بەروار بە دروستی بنووسە');
+            alert('ناوی کارەکە و بەروار پێویستە');
+        }
+    }
+
+    function toggleTask(id) {
+        const t = currentData.tasks.find(x => x.id === id);
+        if (t) {
+            t.completed = !t.completed;
+            saveCurrentData();
+            renderTasks();
         }
     }
 
@@ -481,12 +506,15 @@
 
         sorted.forEach(t => {
             const li = document.createElement('li');
-            li.className = 'item-card task-card';
+            li.className = `item-card task-card ${t.completed ? 'done' : ''}`;
             li.innerHTML = `
-                <div class="item-info">
-                    <span class="item-title">📌 ${t.name}</span>
-                    <span class="item-meta">📅 ${t.date}</span>
-                    ${t.note ? `<span class="item-note">📝 ${t.note}</span>` : ''}
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <input type="checkbox" ${t.completed ? 'checked' : ''} onchange="toggleTask(${t.id})">
+                    <div class="item-info">
+                        <span class="item-title">${t.name}</span>
+                        <span class="item-meta">📅 ${t.date} ${t.time ? '⏰ ' + t.time : ''}</span>
+                        ${t.note ? `<span class="item-note">📝 ${t.note}</span>` : ''}
+                    </div>
                 </div>
                 <button class="btn-delete" onclick="deleteTask(${t.id})">✕</button>
             `;
@@ -494,7 +522,7 @@
         });
     }
 
-    // Category Dynamic Switch
+    // Dynamic Category
     function handleCategoryChange() {
         const cat = document.getElementById('exp-category').value;
         document.getElementById('field-food').classList.add('hidden');
@@ -508,7 +536,7 @@
         else if (cat === 'هیتر') document.getElementById('field-other').classList.remove('hidden');
     }
 
-    // Expense Logic
+    // Expense
     function addExpense() {
         const date = document.getElementById('exp-date').value;
         const category = document.getElementById('exp-category').value;
@@ -516,12 +544,11 @@
         const note = document.getElementById('exp-note').value.trim();
 
         if (!date || isNaN(amount) || amount <= 0) {
-            alert('تکایە بڕی پارە و بەروار بە دروستی بنووسە');
+            alert('تکایە بڕی پارە و بەروار بنووسە');
             return;
         }
 
         let detailStr = '';
-
         if (category === 'خواردن / خواردنەوە') {
             const foodName = document.getElementById('food-name').value.trim() || 'خواردن';
             const place = document.getElementById('food-place').value;
@@ -531,25 +558,14 @@
             const route = document.getElementById('trans-route').value.trim();
             detailStr = `${type} ${route ? '- ' + route : ''}`;
         } else if (category === 'جل و بەرگ') {
-            const item = document.getElementById('clothes-item').value;
-            detailStr = item;
+            detailStr = document.getElementById('clothes-item').value;
         } else if (category === 'هیتر') {
             detailStr = document.getElementById('other-name').value.trim() || 'مەسرەفی گشتی';
         }
 
-        const expObj = {
-            id: Date.now(),
-            date,
-            category,
-            detail: detailStr,
-            amount,
-            note
-        };
-
-        currentData.expenses.push(expObj);
+        currentData.expenses.push({ id: Date.now(), date, category, detail: detailStr, amount, note });
         saveCurrentData();
 
-        // Reset Inputs
         document.getElementById('exp-amount').value = '';
         document.getElementById('exp-note').value = '';
         document.getElementById('food-name').value = '';
@@ -578,8 +594,38 @@
         document.getElementById('disp-expenses').innerText = totalExpenses.toLocaleString();
         document.getElementById('disp-balance').innerText = balance.toLocaleString();
 
+        renderAnalytics(totalExpenses);
         renderTasks();
         renderExpenses();
+    }
+
+    function renderAnalytics(total) {
+        const box = document.getElementById('analytics-container');
+        box.innerHTML = '';
+
+        if (total === 0) {
+            box.innerHTML = '<span style="font-size:11px; color:var(--text-sub);">هیچ ئامارێک بەردەست نییە</span>';
+            return;
+        }
+
+        const cats = ['خواردن / خواردنەوە', 'هاتووچۆ', 'جل و بەرگ', 'هیتر'];
+        cats.forEach(c => {
+            const catTotal = currentData.expenses.filter(e => e.category === c).reduce((s, e) => s + e.amount, 0);
+            if (catTotal > 0) {
+                const pct = Math.round((catTotal / total) * 100);
+                box.innerHTML += `
+                    <div class="chart-bar-wrap">
+                        <div class="chart-label">
+                            <span>${c}</span>
+                            <span>${catTotal.toLocaleString()} د.ع (%${pct})</span>
+                        </div>
+                        <div class="bar-bg">
+                            <div class="bar-fill" style="width: ${pct}%;"></div>
+                        </div>
+                    </div>
+                `;
+            }
+        });
     }
 
     function renderExpenses() {
@@ -589,27 +635,19 @@
         const catFilter = document.getElementById('filter-category').value;
         const sortFilter = document.getElementById('filter-sort').value;
         const dateFilter = document.getElementById('filter-date').value;
+        const searchText = document.getElementById('search-box').value.toLowerCase().trim();
 
         let filtered = [...currentData.expenses];
 
-        // Filter Category
-        if (catFilter !== 'هەمووی') {
-            filtered = filtered.filter(e => e.category === catFilter);
+        if (catFilter !== 'هەمووی') filtered = filtered.filter(e => e.category === catFilter);
+        if (dateFilter) filtered = filtered.filter(e => e.date === dateFilter);
+        if (searchText) {
+            filtered = filtered.filter(e => e.detail.toLowerCase().includes(searchText) || (e.note && e.note.toLowerCase().includes(searchText)));
         }
 
-        // Filter Single Date
-        if (dateFilter) {
-            filtered = filtered.filter(e => e.date === dateFilter);
-        }
-
-        // Sorting Logic
-        if (sortFilter === 'low-high') {
-            filtered.sort((a, b) => a.amount - b.amount);
-        } else if (sortFilter === 'high-low') {
-            filtered.sort((a, b) => b.amount - a.amount);
-        } else {
-            filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
-        }
+        if (sortFilter === 'low-high') filtered.sort((a, b) => a.amount - b.amount);
+        else if (sortFilter === 'high-low') filtered.sort((a, b) => b.amount - a.amount);
+        else filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
 
         if (filtered.length === 0) {
             list.innerHTML = '<li style="text-align:center; color:var(--text-sub); font-size:12px; padding:15px;">هیچ مەسرەفێک نەدۆزرایەوە</li>';
@@ -632,6 +670,56 @@
             `;
             list.appendChild(li);
         });
+    }
+
+    // EXPORT TO EXCEL (CSV)
+    function exportToCSV() {
+        if (currentData.expenses.length === 0) {
+            alert('هیچ مەسرەفێک نییە بۆ هەناردەکردن');
+            return;
+        }
+        let csv = '\uFEFFکتێگۆری,تفاسیل,بەروار,بڕی پارە,تێبینی\n';
+        currentData.expenses.forEach(e => {
+            csv += `"${e.category}","${e.detail}","${e.date}","${e.amount}","${e.note || ''}"\n`;
+        });
+
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `Expenses_${currentData.month}.csv`;
+        link.click();
+    }
+
+    // BACKUP & RESTORE
+    function backupData() {
+        const fullBackup = { currentData, monthlyArchives };
+        const blob = new Blob([JSON.stringify(fullBackup, null, 2)], { type: 'application/json' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `SmartSystem_Backup_${getTodayMonth()}.json`;
+        link.click();
+    }
+
+    function restoreData(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const data = JSON.parse(e.target.result);
+                if (data.currentData) {
+                    localStorage.setItem('currentMonthData', JSON.stringify(data.currentData));
+                    if (data.monthlyArchives) localStorage.setItem('monthlyArchives', JSON.stringify(data.monthlyArchives));
+                    location.reload();
+                } else {
+                    alert('فایلی هەڵەیە');
+                }
+            } catch (err) {
+                alert('کێشەیەک لە خوێندنەوەی فایلەکە هەیە');
+            }
+        };
+        reader.readAsText(file);
     }
 </script>
 
