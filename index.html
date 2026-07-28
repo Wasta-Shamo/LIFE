@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="ku" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ئەپی دارایی من</title>
+    
+    <!-- PWA Settings for Mobile -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#4318ff">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="دارایی من">
+    
+    <style>
+        :root {
+            --bg-color: #f4f7fe;
+            --card-bg: #ffffff;
+            --text-color: #1b2559;
+            --primary: #4318ff;
+            --success: #05cd99;
+            --danger: #ee5d50;
+            --warning: #ffb547;
+            --border: #e0e5f2;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            padding: 15px;
+            padding-bottom: 40px;
+            user-select: none;
+        }
+
+        .header-title {
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+            margin: 10px 0 5px 0;
+            color: var(--primary);
+        }
+
+        .current-month-badge {
+            text-align: center;
+            font-size: 13px;
+            font-weight: 600;
+            color: #7090b0;
+            margin-bottom: 20px;
+        }
+
+        /* Dashboard Cards Stack */
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            padding: 12px 8px;
+            border-radius: 14px;
+            text-align: center;
+            box-shadow: 0px 10px 20px rgba(112, 144, 176, 0.08);
+            border: 1px solid var(--border);
+        }
+
+        .card h3 {
+            font-size: 11px;
+            color: #7090b0;
+            margin-bottom: 5px;
+        }
+
+        .card p {
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .card.income p { color: var(--primary); }
+        .card.expense p { color: var(--danger); }
+        .card.profit p { color: var(--success); }
+        .card.loss p { color: var(--danger); }
+
+        /* Mobile Section Boxes */
+        .section-box {
+            background: var(--card-bg);
+            padding: 16px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            box-shadow: 0px 10px 20px rgba(112, 144, 176, 0.05);
+            margin-bottom: 20px;
+        }
+
+        .section-box h2 {
+            font-size: 15px;
+            margin-bottom: 12px;
+            border-bottom: 2px solid var(--bg-color);
+            padding-bottom: 8px;
+        }
+
+        /* Mobile Form Inputs */
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #7090b0;
+        }
+
+        input, select, button {
+            padding: 14px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            outline: none;
+            font-size: 15px;
+            width: 100%;
+            background-color: #f8fafc;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--primary);
+            background-color: #fff;
+        }
+
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            font-weight: bold;
+            font-size: 15px;
+            margin-top: 5px;
+            box-shadow: 0px 6px 12px rgba(67, 24, 255, 0.25);
+            cursor: pointer;
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        .hidden { display: none !important; }
+
+        /* List Items (Mobile UI) */
+        ul {
+            list-style: none;
+            max-height: 250px;
+            overflow-y: auto;
+        }
+
+        li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 10px;
+            border-bottom: 1px solid var(--border);
+            font-size: 14px;
+        }
+
+        .item-details {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .item-date {
+            font-size: 10px;
+            color: #888;
+        }
+
+        .delete-btn {
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            width: auto;
+            margin: 0;
+            box-shadow: none;
+        }
+
+        /* Mobile Table */
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 8px;
+        }
+
+        th, td {
+            padding: 10px 6px;
+            text-align: right;
+            border-bottom: 1px solid var(--border);
+            font-size: 12px;
+        }
+
+        th { background-color: var(--bg-color); }
+
+        .alert-box {
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 12px;
+            font-size: 12px;
+            line-height: 1.4;
+        }
+        .alert-more { background: #ffe5e5; color: var(--danger); }
+        .alert-less { background: #e5f9f3; color: var(--success); }
+    </style>
+</head>
+<body>
+
+<div class="header-title">📱 بەڕێوەبەری دارایی من</div>
+<div class="current-month-badge" id="current-month-display">مانگی ئێستا: --</div>
+
+<!-- DASHBOARD CARDS -->
+<div class="dashboard">
+    <div class="card income">
+        <h3>مووچە</h3>
+        <p id="display-salary">0</p>
+    </div>
+    <div class="card expense">
+        <h3>مەسرەف</h3>
+        <p id="display-expenses">0</p>
+    </div>
+    <div class="card" id="status-card">
+        <h3 id="status-title">مانەوە</h3>
+        <p id="display-status">0</p>
+    </div>
+</div>
+
+<!-- 1. SET SALARY -->
+<div class="section-box">
+    <h2>مووچەی مانگانە</h2>
+    <div class="input-group">
+        <label>مووچەی ئەم مانگە (د.ع):</label>
+        <input type="number" id="salary-input" placeholder="بڕی معاش بنووسە">
+        <button onclick="setSalary()">تۆمارکردن / دەستکاری مووچە</button>
+    </div>
+</div>
+
+<!-- 2. ADD EXPENSE -->
+<div class="section-box">
+    <h2>تۆمارکردنی مەسرەف</h2>
+    <div class="input-group">
+        <label>بەروار:</label>
+        <input type="date" id="expense-date">
+        
+        <label>جۆری مەسرەف:</label>
+        <select id="expense-category" onchange="toggleCustomInput()">
+            <option value="خواردن">خواردن و بەقالی</option>
+            <option value="هاتوچۆ">هاتوچۆ / بەنزین / تاكسی</option>
+            <option value="ڕاهێنان">ڕاهێنان / وەرزش</option>
+            <option value="خاوێنکردنەوە">کەرەستەی خاوێنکردنەوە</option>
+            <option value="هی تر">هی تر...</option>
+        </select>
+
+        <input type="text" id="custom-category" class="hidden" placeholder="ڕوونکردنەوە بنووسە...">
+
+        <label>بڕی پارە (د.ع):</label>
+        <input type="number" id="expense-amount" placeholder="بڕی مەسرەف">
+        
+        <button onclick="addExpense()">زیادکردنی مەسرەف</button>
+    </div>
+</div>
+
+<!-- 3. EXPENSE LIST -->
+<div class="section-box">
+    <h2>مەسرەفەکانی ئەم مانگە</h2>
+    <ul id="expense-list"></ul>
+</div>
+
+<!-- 4. ARCHIVE & COMPARISON -->
+<div class="section-box">
+    <h2>ئەرشیف و بەراوردکاری مانگەکان</h2>
+    <div id="comparison-alert"></div>
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>مانگ</th>
+                    <th>مووچە</th>
+                    <th>مەسرەف</th>
+                    <th>ئەنجام</th>
+                </tr>
+            </thead>
+            <tbody id="archive-table-body"></tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    // Service Worker for PWA
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js').catch(err => console.log(err));
+    }
+
+    // Helper: Get formatted current year-month
+    function getTodayMonth() {
+        const d = new Date();
+        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+    }
+
+    // App Data State
+    let monthlyArchives = JSON.parse(localStorage.getItem('monthlyArchives')) || [];
+    let currentData = JSON.parse(localStorage.getItem('currentMonthData')) || {
+        month: getTodayMonth(),
+        salary: 0,
+        expenses: []
+    };
+
+    // AUTOMATIC MONTH CHECK (BACKGROUND LOGIC)
+    function checkAutoMonthRollover() {
+        const thisMonth = getTodayMonth();
+
+        // If stored month is different from calendar current month
+        if (currentData.month !== thisMonth) {
+            // 1. Archive previous month if it had any activity
+            if (currentData.expenses.length > 0 || currentData.salary > 0) {
+                const existingIndex = monthlyArchives.findIndex(a => a.month === currentData.month);
+                if (existingIndex !== -1) {
+                    monthlyArchives[existingIndex] = { ...currentData };
+                } else {
+                    monthlyArchives.push({ ...currentData });
+                }
+                localStorage.setItem('monthlyArchives', JSON.stringify(monthlyArchives));
+            }
+
+            // 2. Automatically create new month session (Carrying over the salary)
+            currentData = {
+                month: thisMonth,
+                salary: currentData.salary || 0, // Keeps existing salary for convenience
+                expenses: []
+            };
+            saveCurrentData();
+        }
+    }
+
+    window.onload = function() {
+        checkAutoMonthRollover(); // Auto-check on launch
+        
+        document.getElementById('expense-date').valueAsDate = new Date();
+        document.getElementById('current-month-display').innerText = 'مانگی ئێستا: ' + currentData.month;
+        document.getElementById('salary-input').value = currentData.salary || '';
+        
+        updateUI();
+        renderArchives();
+    };
+
+    function toggleCustomInput() {
+        const cat = document.getElementById('expense-category').value;
+        const customInput = document.getElementById('custom-category');
+        if (cat === 'هی تر') {
+            customInput.classList.remove('hidden');
+        } else {
+            customInput.classList.add('hidden');
+        }
+    }
+
+    function setSalary() {
+        const val = parseFloat(document.getElementById('salary-input').value);
+        if (!isNaN(val) && val >= 0) {
+            currentData.salary = val;
+            saveCurrentData();
+            updateUI();
+            alert('مووچەی مانگ بەسەرکەوتوویی تۆمارکرا');
+        }
+    }
+
+    function addExpense() {
+        const date = document.getElementById('expense-date').value;
+        let category = document.getElementById('expense-category').value;
+        const customCategory = document.getElementById('custom-category').value.trim();
+        const amount = parseFloat(document.getElementById('expense-amount').value);
+
+        if (category === 'هی تر') {
+            if (!customCategory) {
+                alert('تکایە جۆری مەسرەفەکە بنووسە');
+                return;
+            }
+            category = `هی تر (${customCategory})`;
+        }
+
+        if (date && !isNaN(amount) && amount > 0) {
+            currentData.expenses.push({ id: Date.now(), date, category, amount });
+            saveCurrentData();
+            
+            document.getElementById('expense-amount').value = '';
+            document.getElementById('custom-category').value = '';
+            
+            updateUI();
+        }
+    }
+
+    function deleteExpense(id) {
+        currentData.expenses = currentData.expenses.filter(item => item.id !== id);
+        saveCurrentData();
+        updateUI();
+    }
+
+    function saveCurrentData() {
+        localStorage.setItem('currentMonthData', JSON.stringify(currentData));
+    }
+
+    function updateUI() {
+        const totalExpenses = currentData.expenses.reduce((sum, item) => sum + item.amount, 0);
+        const net = currentData.salary - totalExpenses;
+
+        document.getElementById('display-salary').innerText = currentData.salary.toLocaleString();
+        document.getElementById('display-expenses').innerText = totalExpenses.toLocaleString();
+        
+        const statusCard = document.getElementById('status-card');
+        const statusTitle = document.getElementById('status-title');
+        const displayStatus = document.getElementById('display-status');
+
+        if (net >= 0) {
+            statusTitle.innerText = 'توفیر';
+            statusCard.className = 'card profit';
+            displayStatus.innerText = '+' + net.toLocaleString();
+        } else {
+            statusTitle.innerText = 'زەرەر';
+            statusCard.className = 'card loss';
+            displayStatus.innerText = net.toLocaleString();
+        }
+
+        renderExpenses();
+        renderComparison();
+    }
+
+    function renderExpenses() {
+        const list = document.getElementById('expense-list');
+        list.innerHTML = '';
+
+        const sorted = [...currentData.expenses].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+        sorted.forEach(item => {
+            const li = document.createElement('li');
+            li.innerHTML = `
+                <div class="item-details">
+                    <strong>${item.category}</strong>
+                    <span class="item-date">${item.date}</span>
+                </div>
+                <div>
+                    <span style="margin-left:8px; font-weight:bold;">${item.amount.toLocaleString()}</span>
+                    <button class="delete-btn" onclick="deleteExpense(${item.id})">✕</button>
+                </div>
+            `;
+            list.appendChild(li);
+        });
+    }
+
+    function renderArchives() {
+        const tbody = document.getElementById('archive-table-body');
+        tbody.innerHTML = '';
+
+        monthlyArchives.sort((a, b) => b.month.localeCompare(a.month));
+
+        monthlyArchives.forEach(item => {
+            const totalExp = item.expenses.reduce((sum, e) => sum + e.amount, 0);
+            const net = item.salary - totalExp;
+            
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><strong>${item.month}</strong></td>
+                <td>${item.salary.toLocaleString()}</td>
+                <td>${totalExp.toLocaleString()}</td>
+                <td style="color: ${net >= 0 ? 'var(--success)' : 'var(--danger)'}; font-weight:bold;">
+                    ${net >= 0 ? '+' : ''}${net.toLocaleString()}
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function renderComparison() {
+        const alertDiv = document.getElementById('comparison-alert');
+        alertDiv.innerHTML = '';
+
+        if (monthlyArchives.length === 0) return;
+
+        const lastArchive = monthlyArchives[0];
+        const currentExp = currentData.expenses.reduce((sum, e) => sum + e.amount, 0);
+        const lastExp = lastArchive.expenses.reduce((sum, e) => sum + e.amount, 0);
+
+        const diff = currentExp - lastExp;
+
+        if (diff > 0) {
+            alertDiv.innerHTML = `<div class="alert-box alert-more">⚠️ مەسرەفی ئەم مانگەت بە بڕی (<strong>${diff.toLocaleString()} د.ع</strong>) لە مانگی پێشوو (${lastArchive.month}) زیاترە.</div>`;
+        } else if (diff < 0) {
+            alertDiv.innerHTML = `<div class="alert-box alert-less">🎉 دەستخۆش! مەسرەفت بە بڕی (<strong>${Math.abs(diff).toLocaleString()} د.ع</strong>) لە مانگی پێشوو (${lastArchive.month}) کەمترە.</div>`;
+        }
+    }
+</script>
+
+</body>
+</html>

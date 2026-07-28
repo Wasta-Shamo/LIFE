@@ -1,0 +1,16 @@
+{
+  "short_name": "دارایی من",
+  "name": "سیستەمی دارایی من",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/2953/2953361.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "./index.html",
+  "background_color": "#f4f7fe",
+  "theme_color": "#4318ff",
+  "display": "standalone",
+  "orientation": "portrait"
+}
