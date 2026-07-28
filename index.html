@@ -3,12 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Smart Life & Auto-Archive Sync</title>
+    <title>Smart Life Manager</title>
     
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0f172a">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     
     <style>
         :root {
@@ -56,20 +54,10 @@
             -webkit-text-fill-color: transparent;
         }
 
-        .status-badge {
-            font-size: 11px;
-            background: rgba(99, 102, 241, 0.15);
-            color: #a5b4fc;
-            padding: 6px 12px;
-            border-radius: 20px;
-            border: 1px solid rgba(99, 102, 241, 0.3);
-            font-weight: bold;
-        }
-
         .dashboard-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
             margin-bottom: 25px;
         }
 
@@ -77,14 +65,15 @@
             background: var(--card-bg);
             backdrop-filter: blur(12px);
             border: 1px solid var(--card-border);
-            padding: 14px 8px;
-            border-radius: 16px;
+            padding: 12px 6px;
+            border-radius: 14px;
             text-align: center;
         }
 
-        .stat-card span { display: block; font-size: 10px; color: var(--text-sub); margin-bottom: 5px; }
-        .stat-card strong { font-size: 13px; font-weight: 700; }
+        .stat-card span { display: block; font-size: 10px; color: var(--text-sub); margin-bottom: 4px; }
+        .stat-card strong { font-size: 12px; font-weight: 700; }
         .stat-card.income strong { color: var(--success); }
+        .stat-card.daily strong { color: #f59e0b; }
         .stat-card.expense strong { color: var(--danger); }
         .stat-card.balance strong { color: #38bdf8; }
 
@@ -111,7 +100,7 @@
         .form-group { display: flex; flex-direction: column; gap: 10px; }
         label { font-size: 11px; font-weight: 600; color: var(--text-sub); }
 
-        input, select, textarea {
+        input, select {
             background: rgba(15, 23, 42, 0.6);
             border: 1px solid var(--card-border);
             color: #fff;
@@ -122,7 +111,7 @@
             width: 100%;
         }
 
-        input:focus, select:focus, textarea:focus { border-color: var(--primary); }
+        input:focus, select:focus { border-color: var(--primary); }
 
         .btn-action {
             background: var(--primary-gradient);
@@ -192,9 +181,6 @@
             margin-right: 8px;
         }
 
-        .task-card { border-right: 3px solid var(--primary); }
-        .task-card.done { opacity: 0.5; text-decoration: line-through; border-right-color: var(--success); }
-
         .filter-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -210,8 +196,8 @@
         @media print {
             body { background-color: #fff !important; color: #000 !important; padding: 0 !important; }
             .glass-box, .stat-card { background: #fff !important; border: 1px solid #ccc !important; color: #000 !important; box-shadow: none !important; }
-            .form-group, .btn-action, .btn-secondary, .btn-delete, #search-box, .filter-grid, #filter-date, input, select, button, .sync-box { display: none !important; }
-            .app-title, .status-badge, .stat-card strong, .item-title, .item-note { color: #000 !important; -webkit-text-fill-color: initial !important; }
+            .form-group, .btn-action, .btn-secondary, .btn-delete, #search-box, .filter-grid, #filter-date, input, select, button { display: none !important; }
+            .app-title, .stat-card strong, .item-title, .item-note { color: #000 !important; -webkit-text-fill-color: initial !important; }
             ul { max-height: none !important; }
         }
     </style>
@@ -219,22 +205,12 @@
 <body>
 
 <div class="app-header">
-    <div class="app-title">⚡ Smart System Sync</div>
-    <div class="status-badge" id="sync-status">پچڕاوە ⚪</div>
-</div>
-
-<!-- CONNECT DEVICE BOX -->
-<div class="glass-box sync-box" style="background: rgba(99, 102, 241, 0.1); border-color: rgba(99, 102, 241, 0.3);">
-    <h2 style="border:none; margin-bottom:8px;">🔗 بەستنەوەی مۆبایل و لاپتۆپ</h2>
-    <div style="display:flex; gap:8px;">
-        <input type="text" id="sync-code-input" placeholder="کۆدێک دیاری بکە (مثلاً: khalil123)">
-        <button class="btn-secondary" style="background:var(--primary); color:#fff; font-weight:bold; white-space:nowrap;" onclick="connectSync()">بەستنەوە</button>
-    </div>
+    <div class="app-title">⚡ Smart System</div>
 </div>
 
 <!-- ARCHIVE & MONTH SELECTOR -->
 <div class="glass-box" style="border-color: rgba(245, 158, 11, 0.3);">
-    <h2>📚 ئەرشیفی مانگەکان</h2>
+    <h2>📚 ئەرشیفی خەزنکراوی مانگەکان</h2>
     <div class="form-group">
         <label>سەیرکردنی مانگی ئێستا یان مانگەکانی ڕابردوو:</label>
         <select id="archive-selector" onchange="loadSelectedMonth()">
@@ -246,15 +222,19 @@
 <!-- DASHBOARD -->
 <div class="dashboard-grid">
     <div class="stat-card income">
-        <span>مووچە</span>
+        <span>مووچەی مانگانە</span>
         <strong id="disp-salary">0</strong>
+    </div>
+    <div class="stat-card daily">
+        <span>کاری ڕۆژانە</span>
+        <strong id="disp-daily-income">0</strong>
     </div>
     <div class="stat-card expense">
         <span>مەسرەف</span>
         <strong id="disp-expenses">0</strong>
     </div>
     <div class="stat-card balance">
-        <span>قازانج</span>
+        <span>توفیر (صافی)</span>
         <strong id="disp-balance">0</strong>
     </div>
 </div>
@@ -267,16 +247,16 @@
 
 <!-- SALARY -->
 <div class="glass-box main-input-field">
-    <h2>💵 دیاریکردنی مووچە</h2>
+    <h2>💵 دیاریکردنی مووچەی مانگانە</h2>
     <div class="form-group">
         <input type="number" id="salary-input" placeholder="بڕی مووچە (د.ع)">
-        <button class="btn-action" onclick="saveSalary()">تۆمارکردن</button>
+        <button class="btn-action" onclick="saveSalary()">تۆمارکردنی مووچە</button>
     </div>
 </div>
 
-<!-- TASKS -->
+<!-- DAILY WORK ENTRY -->
 <div class="glass-box main-input-field">
-    <h2>💼 تۆمارکردنی کاری ڕۆژانە</h2>
+    <h2>💼 تۆمارکردنی کاری ڕۆژانە (داهاتی ڕۆژانە)</h2>
     <div class="form-group">
         <label>ناوی کار:</label>
         <input type="text" id="task-name" placeholder="ناوی کارەکە...">
@@ -292,10 +272,13 @@
             </div>
         </div>
 
+        <label>بڕی پارەی پەیداکراو (د.ع):</label>
+        <input type="number" id="task-amount" placeholder="بڕی پارە (ئەگەر هەبێت)">
+
         <label>تێبینی:</label>
         <input type="text" id="task-note" placeholder="تێبینی...">
 
-        <button class="btn-action" onclick="addTask()">زیادکردنی کار</button>
+        <button class="btn-action" onclick="addTask()">زیادکردنی کاری ڕۆژانە</button>
     </div>
     <hr style="margin: 15px 0; border: none; border-top: 1px solid var(--card-border);">
     <ul id="task-list"></ul>
@@ -363,7 +346,7 @@
         <label>تێبینی:</label>
         <input type="text" id="exp-note" placeholder="تێبینی...">
 
-        <button class="btn-action" onclick="addExpense()">زیادکردن</button>
+        <button class="btn-action" onclick="addExpense()">زیادکردنی مەسرەف</button>
     </div>
 </div>
 
@@ -413,8 +396,6 @@
 </div>
 
 <script>
-    let currentSyncCode = localStorage.getItem('user_sync_code') || '';
-    let pollInterval = null;
     let viewingMonthKey = 'current';
 
     let appData = JSON.parse(localStorage.getItem('smartAppData')) || {
@@ -432,32 +413,25 @@
         document.getElementById('task-date').valueAsDate = new Date();
         document.getElementById('exp-date').valueAsDate = new Date();
 
-        // ڕاستەوخۆ دەستنیشانی دەکات ئەگەر مانگ گۆڕابێت خۆکارانە مانگی پێشوو ئەرشیف دەکات
         checkAutoMonthRollover();
         populateArchiveSelector();
-
-        if (currentSyncCode) {
-            document.getElementById('sync-code-input').value = currentSyncCode;
-            startSync();
-        }
         updateUI();
     };
+
+    function saveData() {
+        localStorage.setItem('smartAppData', JSON.stringify(appData));
+    }
 
     function checkAutoMonthRollover() {
         const nowKey = getCurrentMonthKey();
         if (!appData.currentMonth) appData.currentMonth = nowKey;
 
-        // کاتێک مانگ گۆڕا (بۆ نموونە بووە مانگی نوێ)
         if (appData.currentMonth !== nowKey) {
             if (!appData.archives) appData.archives = {};
-            
-            // مانگی کۆن ئۆتۆماتیکی پاشەکەوت دەکات لە ئەرشیف
             appData.archives[appData.currentMonth] = JSON.parse(JSON.stringify(appData.currentData));
-            
-            // لاپەڕەی مانگی نوێ ئامادە دەکات
             appData.currentMonth = nowKey;
             appData.currentData = { salary: 0, expenses: [], tasks: [] };
-            pushDataToCloud();
+            saveData();
         }
     }
 
@@ -477,7 +451,7 @@
         const inputs = document.querySelectorAll('.main-input-field');
         
         if (viewingMonthKey !== 'current') {
-            inputs.forEach(el => el.style.display = 'none'); // کاتێک سەیری ئەرشیف دەکات بەشی زیادکردن دەشارێتەوە
+            inputs.forEach(el => el.style.display = 'none');
         } else {
             inputs.forEach(el => el.style.display = 'block');
         }
@@ -489,105 +463,43 @@
         return appData.archives[viewingMonthKey] || { salary: 0, expenses: [], tasks: [] };
     }
 
-    function connectSync() {
-        const code = document.getElementById('sync-code-input').value.trim();
-        if (code.length < 3) {
-            alert('تکایە کۆدێک بنووسە کە لانیکەم ٣ پیت یان ژمارە بێت');
-            return;
-        }
-        currentSyncCode = code;
-        localStorage.setItem('user_sync_code', currentSyncCode);
-        startSync();
-        pushDataToCloud();
-    }
-
-    function startSync() {
-        if (pollInterval) clearInterval(pollInterval);
-        document.getElementById('sync-status').innerText = 'بەستراوەتەوە 🟢';
-        document.getElementById('sync-status').style.color = '#34d399';
-        
-        fetchDataFromCloud();
-        pollInterval = setInterval(fetchDataFromCloud, 3000);
-    }
-
-    function pushDataToCloud() {
-        localStorage.setItem('smartAppData', JSON.stringify(appData));
-        if (!currentSyncCode) return;
-
-        fetch(`https://api.npoint.io/` + hashString(currentSyncCode), {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(appData)
-        }).catch(err => console.log(err));
-    }
-
-    function fetchDataFromCloud() {
-        if (!currentSyncCode) return;
-
-        fetch(`https://api.npoint.io/` + hashString(currentSyncCode))
-            .then(res => res.json())
-            .then(data => {
-                if (data && typeof data === 'object' && data.currentData) {
-                    appData = data;
-                    localStorage.setItem('smartAppData', JSON.stringify(appData));
-                    checkAutoMonthRollover();
-                    populateArchiveSelector();
-                    updateUI();
-                }
-            }).catch(err => console.log(err));
-    }
-
-    function hashString(str) {
-        let hash = 0;
-        for (let i = 0; i < str.length; i++) {
-            hash = (hash << 5) - hash + str.charCodeAt(i);
-            hash |= 0;
-        }
-        return 'sync' + Math.abs(hash);
-    }
-
     function saveSalary() {
         if (viewingMonthKey !== 'current') return;
         const val = parseFloat(document.getElementById('salary-input').value);
         if (!isNaN(val) && val >= 0) {
             appData.currentData.salary = val;
-            pushDataToCloud();
+            saveData();
             updateUI();
         }
     }
 
-    // Tasks
+    // Daily Tasks / Jobs
     function addTask() {
         if (viewingMonthKey !== 'current') return;
         const name = document.getElementById('task-name').value.trim();
         const date = document.getElementById('task-date').value;
         const time = document.getElementById('task-time').value;
+        const amount = parseFloat(document.getElementById('task-amount').value) || 0;
         const note = document.getElementById('task-note').value.trim();
 
         if (name && date) {
             if (!appData.currentData.tasks) appData.currentData.tasks = [];
-            appData.currentData.tasks.push({ id: Date.now(), name, date, time, note, completed: false });
-            pushDataToCloud();
+            appData.currentData.tasks.push({ id: Date.now(), name, date, time, amount, note });
+            saveData();
+
             document.getElementById('task-name').value = '';
+            document.getElementById('task-amount').value = '';
             document.getElementById('task-note').value = '';
             updateUI();
-        }
-    }
-
-    function toggleTask(id) {
-        if (viewingMonthKey !== 'current') return;
-        const t = appData.currentData.tasks.find(x => x.id === id);
-        if (t) {
-            t.completed = !t.completed;
-            pushDataToCloud();
-            updateUI();
+        } else {
+            alert('تکایە ناوی کار و بەروار بنووسە');
         }
     }
 
     function deleteTask(id) {
         if (viewingMonthKey !== 'current') return;
         appData.currentData.tasks = appData.currentData.tasks.filter(t => t.id !== id);
-        pushDataToCloud();
+        saveData();
         updateUI();
     }
 
@@ -597,25 +509,32 @@
         const data = getActiveData();
         const sorted = [...(data.tasks || [])].sort((a,b) => new Date(b.date) - new Date(a.date));
 
+        if (sorted.length === 0) {
+            list.innerHTML = '<li style="text-align:center; color:var(--text-sub); font-size:12px; padding:10px;">هیچ کاری ڕۆژانە تۆمار نەکراوە</li>';
+            return;
+        }
+
         sorted.forEach(t => {
             const li = document.createElement('li');
-            li.className = `item-card task-card ${t.completed ? 'done' : ''}`;
+            li.className = 'item-card';
             li.innerHTML = `
-                <div style="display:flex; align-items:center; gap:10px;">
-                    ${viewingMonthKey === 'current' ? `<input type="checkbox" ${t.completed ? 'checked' : ''} onchange="toggleTask(${t.id})">` : ''}
-                    <div class="item-info">
-                        <span class="item-title">${t.name}</span>
-                        <span class="item-meta">📅 ${t.date} ${t.time ? '⏰ ' + t.time : ''}</span>
-                        ${t.note ? `<span class="item-note">📝 ${t.note}</span>` : ''}
-                    </div>
+                <div class="item-info">
+                    <span class="item-title">💼 ${t.name}</span>
+                    <span class="item-meta">📅 ${t.date} ${t.time ? '⏰ ' + t.time : ''}</span>
+                    ${t.note ? `<span class="item-note">📝 ${t.note}</span>` : ''}
                 </div>
-                ${viewingMonthKey === 'current' ? `<button class="btn-delete" onclick="deleteTask(${t.id})">✕</button>` : ''}
+                <div style="display:flex; align-items:center;">
+                    <span style="font-size:13px; font-weight:bold; color:var(--warning); font-weight:bold; margin-left:10px;">
+                        ${t.amount ? '+' + t.amount.toLocaleString() + ' د.ع' : '0 د.ع'}
+                    </span>
+                    ${viewingMonthKey === 'current' ? `<button class="btn-delete" onclick="deleteTask(${t.id})">✕</button>` : ''}
+                </div>
             `;
             list.appendChild(li);
         });
     }
 
-    // Category
+    // Category Selector
     function handleCategoryChange() {
         const cat = document.getElementById('exp-category').value;
         document.getElementById('field-food').classList.add('hidden');
@@ -629,7 +548,7 @@
         else if (cat === 'هیتر') document.getElementById('field-other').classList.remove('hidden');
     }
 
-    // Expense
+    // Expenses
     function addExpense() {
         if (viewingMonthKey !== 'current') return;
         const date = document.getElementById('exp-date').value;
@@ -659,7 +578,7 @@
 
         if (!appData.currentData.expenses) appData.currentData.expenses = [];
         appData.currentData.expenses.push({ id: Date.now(), date, category, detail: detailStr, amount, note });
-        pushDataToCloud();
+        saveData();
 
         document.getElementById('exp-amount').value = '';
         document.getElementById('exp-note').value = '';
@@ -673,7 +592,7 @@
     function deleteExpense(id) {
         if (viewingMonthKey !== 'current') return;
         appData.currentData.expenses = appData.currentData.expenses.filter(e => e.id !== id);
-        pushDataToCloud();
+        saveData();
         updateUI();
     }
 
@@ -685,15 +604,21 @@
     function updateUI() {
         const data = getActiveData();
         const expenses = data.expenses || [];
-        const totalExpenses = expenses.reduce((s, e) => s + e.amount, 0);
-        const balance = (data.salary || 0) - totalExpenses;
+        const tasks = data.tasks || [];
 
-        document.getElementById('disp-salary').innerText = (data.salary || 0).toLocaleString();
+        const totalExpenses = expenses.reduce((s, e) => s + e.amount, 0);
+        const totalDailyIncome = tasks.reduce((s, t) => s + (t.amount || 0), 0);
+        const totalSalary = data.salary || 0;
+
+        const netBalance = (totalSalary + totalDailyIncome) - totalExpenses;
+
+        document.getElementById('disp-salary').innerText = totalSalary.toLocaleString();
+        document.getElementById('disp-daily-income').innerText = totalDailyIncome.toLocaleString();
         document.getElementById('disp-expenses').innerText = totalExpenses.toLocaleString();
-        document.getElementById('disp-balance').innerText = balance.toLocaleString();
+        document.getElementById('disp-balance').innerText = netBalance.toLocaleString();
 
         if (viewingMonthKey === 'current') {
-            document.getElementById('salary-input').value = data.salary || '';
+            document.getElementById('salary-input').value = totalSalary || '';
         }
 
         renderAnalytics(totalExpenses);
