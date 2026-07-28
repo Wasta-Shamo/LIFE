@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Smart Life & Finance Ultimate</title>
+    <title>Smart Life & Auto-Archive Sync</title>
     
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0f172a">
@@ -44,7 +44,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             padding: 10px 5px;
         }
 
@@ -56,7 +56,7 @@
             -webkit-text-fill-color: transparent;
         }
 
-        .month-badge {
+        .status-badge {
             font-size: 11px;
             background: rgba(99, 102, 241, 0.15);
             color: #a5b4fc;
@@ -202,36 +202,45 @@
             margin-bottom: 12px;
         }
 
-        /* Analytics Chart Bars */
-        .chart-bar-wrap {
-            margin-bottom: 12px;
-        }
-        .chart-label {
-            display: flex;
-            justify-content: space-between;
-            font-size: 11px;
-            margin-bottom: 4px;
-        }
-        .bar-bg {
-            background: rgba(255,255,255,0.05);
-            border-radius: 10px;
-            height: 8px;
-            overflow: hidden;
-        }
-        .bar-fill {
-            height: 100%;
-            border-radius: 10px;
-            background: var(--primary-gradient);
-            width: 0%;
-            transition: width 0.4s ease;
+        .chart-bar-wrap { margin-bottom: 12px; }
+        .chart-label { display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 4px; }
+        .bar-bg { background: rgba(255,255,255,0.05); border-radius: 10px; height: 8px; overflow: hidden; }
+        .bar-fill { height: 100%; border-radius: 10px; background: var(--primary-gradient); width: 0%; transition: width 0.4s ease; }
+
+        @media print {
+            body { background-color: #fff !important; color: #000 !important; padding: 0 !important; }
+            .glass-box, .stat-card { background: #fff !important; border: 1px solid #ccc !important; color: #000 !important; box-shadow: none !important; }
+            .form-group, .btn-action, .btn-secondary, .btn-delete, #search-box, .filter-grid, #filter-date, input, select, button, .sync-box { display: none !important; }
+            .app-title, .status-badge, .stat-card strong, .item-title, .item-note { color: #000 !important; -webkit-text-fill-color: initial !important; }
+            ul { max-height: none !important; }
         }
     </style>
 </head>
 <body>
 
 <div class="app-header">
-    <div class="app-title">⚡ Smart System Pro</div>
-    <div class="month-badge" id="current-month-label">--</div>
+    <div class="app-title">⚡ Smart System Sync</div>
+    <div class="status-badge" id="sync-status">پچڕاوە ⚪</div>
+</div>
+
+<!-- CONNECT DEVICE BOX -->
+<div class="glass-box sync-box" style="background: rgba(99, 102, 241, 0.1); border-color: rgba(99, 102, 241, 0.3);">
+    <h2 style="border:none; margin-bottom:8px;">🔗 بەستنەوەی مۆبایل و لاپتۆپ</h2>
+    <div style="display:flex; gap:8px;">
+        <input type="text" id="sync-code-input" placeholder="کۆدێک دیاری بکە (مثلاً: khalil123)">
+        <button class="btn-secondary" style="background:var(--primary); color:#fff; font-weight:bold; white-space:nowrap;" onclick="connectSync()">بەستنەوە</button>
+    </div>
+</div>
+
+<!-- ARCHIVE & MONTH SELECTOR -->
+<div class="glass-box" style="border-color: rgba(245, 158, 11, 0.3);">
+    <h2>📚 ئەرشیفی خەزنکراوی مانگەکان</h2>
+    <div class="form-group">
+        <label>سەیرکردنی مانگی ئێستا یان مانگەکانی ڕابردوو:</label>
+        <select id="archive-selector" onchange="loadSelectedMonth()">
+            <option value="current">📅 مانگی ئێستا (چالاک)</option>
+        </select>
+    </div>
 </div>
 
 <!-- DASHBOARD -->
@@ -257,7 +266,7 @@
 </div>
 
 <!-- SALARY -->
-<div class="glass-box">
+<div class="glass-box main-input-field">
     <h2>💵 دیاریکردنی مووچە</h2>
     <div class="form-group">
         <input type="number" id="salary-input" placeholder="بڕی مووچە (د.ع)">
@@ -266,7 +275,7 @@
 </div>
 
 <!-- TASKS -->
-<div class="glass-box">
+<div class="glass-box main-input-field">
     <h2>💼 تۆمارکردنی کاری ڕۆژانە</h2>
     <div class="form-group">
         <label>ناوی کار:</label>
@@ -293,7 +302,7 @@
 </div>
 
 <!-- EXPENSES ENTRY -->
-<div class="glass-box">
+<div class="glass-box main-input-field">
     <h2>💳 تۆمارکردنی مەسرەف</h2>
     <div class="form-group">
         <label>بەروار:</label>
@@ -362,11 +371,14 @@
 <div class="glass-box">
     <h2>
         <span>🔍 گەڕان و فلتەر</span>
-        <button class="btn-secondary" onclick="exportToCSV()">📊 Excel</button>
+        <div>
+            <button class="btn-secondary" onclick="printReport()">🖨️ پرێنت</button>
+            <button class="btn-secondary" onclick="exportToCSV()">📊 Excel</button>
+        </div>
     </h2>
 
     <div style="margin-bottom: 12px;">
-        <input type="text" id="search-box" placeholder="🔎 گەڕانی خێرا لە ناونیشان یان تێبینی..." oninput="renderExpenses()">
+        <input type="text" id="search-box" placeholder="🔎 گەڕانی خێرا..." oninput="renderExpenses()">
     </div>
     
     <div class="filter-grid">
@@ -400,129 +412,210 @@
     <ul id="expense-list"></ul>
 </div>
 
-<!-- BACKUP & RESTORE -->
-<div class="glass-box">
-    <h2>⚙️ پاراستن و گەڕاندنەوەی داتا</h2>
-    <div style="display: flex; gap: 10px;">
-        <button class="btn-secondary" style="flex:1;" onclick="backupData()">📥 دابەزاندنی Backup</button>
-        <button class="btn-secondary" style="flex:1;" onclick="document.getElementById('restore-file').click()">📤 گەڕاندنەوەی Backup</button>
-        <input type="file" id="restore-file" class="hidden" accept=".json" onchange="restoreData(event)">
-    </div>
-</div>
-
 <script>
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('sw.js').catch(err => console.log(err));
-    }
+    let currentSyncCode = localStorage.getItem('user_sync_code') || '';
+    let pollInterval = null;
+    let viewingMonthKey = 'current';
 
-    function getTodayMonth() {
+    let appData = JSON.parse(localStorage.getItem('smartAppData')) || {
+        currentMonth: getCurrentMonthKey(),
+        currentData: { salary: 0, expenses: [], tasks: [] },
+        archives: {}
+    };
+
+    function getCurrentMonthKey() {
         const d = new Date();
         return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
     }
 
-    let monthlyArchives = JSON.parse(localStorage.getItem('monthlyArchives')) || [];
-    let currentData = JSON.parse(localStorage.getItem('currentMonthData')) || {
-        month: getTodayMonth(),
-        salary: 0,
-        expenses: [],
-        tasks: []
-    };
-
-    function checkAutoMonthRollover() {
-        const thisMonth = getTodayMonth();
-        if (currentData.month !== thisMonth) {
-            if (currentData.expenses.length > 0 || currentData.salary > 0 || currentData.tasks.length > 0) {
-                const idx = monthlyArchives.findIndex(a => a.month === currentData.month);
-                if (idx !== -1) monthlyArchives[idx] = { ...currentData };
-                else monthlyArchives.push({ ...currentData });
-                localStorage.setItem('monthlyArchives', JSON.stringify(monthlyArchives));
-            }
-
-            currentData = { month: thisMonth, salary: currentData.salary || 0, expenses: [], tasks: [] };
-            saveCurrentData();
-        }
-    }
-
     window.onload = function() {
-        checkAutoMonthRollover();
         document.getElementById('task-date').valueAsDate = new Date();
         document.getElementById('exp-date').valueAsDate = new Date();
-        document.getElementById('current-month-label').innerText = currentData.month;
-        document.getElementById('salary-input').value = currentData.salary || '';
+
+        // ڕاستەوخۆ دەستنیشانی دەکات ئەگەر مانگ گۆڕابێت خۆکارانە مانگی پێشوو ئەرشیف دەکات
+        checkAutoMonthRollover();
+        populateArchiveSelector();
+
+        if (currentSyncCode) {
+            document.getElementById('sync-code-input').value = currentSyncCode;
+            startSync();
+        }
         updateUI();
     };
 
-    function saveCurrentData() {
-        localStorage.setItem('currentMonthData', JSON.stringify(currentData));
+    function checkAutoMonthRollover() {
+        const nowKey = getCurrentMonthKey();
+        if (!appData.currentMonth) appData.currentMonth = nowKey;
+
+        // کاتێک مانگ گۆڕا (بۆ نموونە بووە مانگی نوێ)
+        if (appData.currentMonth !== nowKey) {
+            if (!appData.archives) appData.archives = {};
+            
+            // مانگی کۆن ئۆتۆماتیکی پاشەکەوت دەکات لە ئەرشیف
+            appData.archives[appData.currentMonth] = JSON.parse(JSON.stringify(appData.currentData));
+            
+            // لاپەڕەی مانگی نوێ ئامادە دەکات
+            appData.currentMonth = nowKey;
+            appData.currentData = { salary: 0, expenses: [], tasks: [] };
+            pushDataToCloud();
+        }
+    }
+
+    function populateArchiveSelector() {
+        const sel = document.getElementById('archive-selector');
+        sel.innerHTML = `<option value="current">📅 مانگی ئێستا (${appData.currentMonth})</option>`;
+        
+        if (appData.archives) {
+            Object.keys(appData.archives).sort().reverse().forEach(key => {
+                sel.innerHTML += `<option value="${key}">📁 ئەرشیفی مانگی ${key}</option>`;
+            });
+        }
+    }
+
+    function loadSelectedMonth() {
+        viewingMonthKey = document.getElementById('archive-selector').value;
+        const inputs = document.querySelectorAll('.main-input-field');
+        
+        if (viewingMonthKey !== 'current') {
+            inputs.forEach(el => el.style.display = 'none'); // کاتێک سەیری ئەرشیف دەکات بەشی زیادکردن دەشارێتەوە
+        } else {
+            inputs.forEach(el => el.style.display = 'block');
+        }
+        updateUI();
+    }
+
+    function getActiveData() {
+        if (viewingMonthKey === 'current') return appData.currentData;
+        return appData.archives[viewingMonthKey] || { salary: 0, expenses: [], tasks: [] };
+    }
+
+    function connectSync() {
+        const code = document.getElementById('sync-code-input').value.trim();
+        if (code.length < 3) {
+            alert('تکایە کۆدێک بنووسە کە لانیکەم ٣ پیت یان ژمارە بێت');
+            return;
+        }
+        currentSyncCode = code;
+        localStorage.setItem('user_sync_code', currentSyncCode);
+        startSync();
+        pushDataToCloud();
+    }
+
+    function startSync() {
+        if (pollInterval) clearInterval(pollInterval);
+        document.getElementById('sync-status').innerText = 'بەستراوەتەوە 🟢';
+        document.getElementById('sync-status').style.color = '#34d399';
+        
+        fetchDataFromCloud();
+        pollInterval = setInterval(fetchDataFromCloud, 3000);
+    }
+
+    function pushDataToCloud() {
+        localStorage.setItem('smartAppData', JSON.stringify(appData));
+        if (!currentSyncCode) return;
+
+        fetch(`https://api.npoint.io/` + hashString(currentSyncCode), {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(appData)
+        }).catch(err => console.log(err));
+    }
+
+    function fetchDataFromCloud() {
+        if (!currentSyncCode) return;
+
+        fetch(`https://api.npoint.io/` + hashString(currentSyncCode))
+            .then(res => res.json())
+            .then(data => {
+                if (data && typeof data === 'object' && data.currentData) {
+                    appData = data;
+                    localStorage.setItem('smartAppData', JSON.stringify(appData));
+                    checkAutoMonthRollover();
+                    populateArchiveSelector();
+                    updateUI();
+                }
+            }).catch(err => console.log(err));
+    }
+
+    function hashString(str) {
+        let hash = 0;
+        for (let i = 0; i < str.length; i++) {
+            hash = (hash << 5) - hash + str.charCodeAt(i);
+            hash |= 0;
+        }
+        return 'sync' + Math.abs(hash);
     }
 
     function saveSalary() {
+        if (viewingMonthKey !== 'current') return;
         const val = parseFloat(document.getElementById('salary-input').value);
         if (!isNaN(val) && val >= 0) {
-            currentData.salary = val;
-            saveCurrentData();
+            appData.currentData.salary = val;
+            pushDataToCloud();
             updateUI();
-            alert('مووچە تۆمارکرا');
         }
     }
 
     // Tasks
     function addTask() {
+        if (viewingMonthKey !== 'current') return;
         const name = document.getElementById('task-name').value.trim();
         const date = document.getElementById('task-date').value;
         const time = document.getElementById('task-time').value;
         const note = document.getElementById('task-note').value.trim();
 
         if (name && date) {
-            currentData.tasks.push({ id: Date.now(), name, date, time, note, completed: false });
-            saveCurrentData();
+            if (!appData.currentData.tasks) appData.currentData.tasks = [];
+            appData.currentData.tasks.push({ id: Date.now(), name, date, time, note, completed: false });
+            pushDataToCloud();
             document.getElementById('task-name').value = '';
             document.getElementById('task-note').value = '';
-            renderTasks();
-        } else {
-            alert('ناوی کارەکە و بەروار پێویستە');
+            updateUI();
         }
     }
 
     function toggleTask(id) {
-        const t = currentData.tasks.find(x => x.id === id);
+        if (viewingMonthKey !== 'current') return;
+        const t = appData.currentData.tasks.find(x => x.id === id);
         if (t) {
             t.completed = !t.completed;
-            saveCurrentData();
-            renderTasks();
+            pushDataToCloud();
+            updateUI();
         }
     }
 
     function deleteTask(id) {
-        currentData.tasks = currentData.tasks.filter(t => t.id !== id);
-        saveCurrentData();
-        renderTasks();
+        if (viewingMonthKey !== 'current') return;
+        appData.currentData.tasks = appData.currentData.tasks.filter(t => t.id !== id);
+        pushDataToCloud();
+        updateUI();
     }
 
     function renderTasks() {
         const list = document.getElementById('task-list');
         list.innerHTML = '';
-        const sorted = [...currentData.tasks].sort((a,b) => new Date(b.date) - new Date(a.date));
+        const data = getActiveData();
+        const sorted = [...(data.tasks || [])].sort((a,b) => new Date(b.date) - new Date(a.date));
 
         sorted.forEach(t => {
             const li = document.createElement('li');
             li.className = `item-card task-card ${t.completed ? 'done' : ''}`;
             li.innerHTML = `
                 <div style="display:flex; align-items:center; gap:10px;">
-                    <input type="checkbox" ${t.completed ? 'checked' : ''} onchange="toggleTask(${t.id})">
+                    ${viewingMonthKey === 'current' ? `<input type="checkbox" ${t.completed ? 'checked' : ''} onchange="toggleTask(${t.id})">` : ''}
                     <div class="item-info">
                         <span class="item-title">${t.name}</span>
                         <span class="item-meta">📅 ${t.date} ${t.time ? '⏰ ' + t.time : ''}</span>
                         ${t.note ? `<span class="item-note">📝 ${t.note}</span>` : ''}
                     </div>
                 </div>
-                <button class="btn-delete" onclick="deleteTask(${t.id})">✕</button>
+                ${viewingMonthKey === 'current' ? `<button class="btn-delete" onclick="deleteTask(${t.id})">✕</button>` : ''}
             `;
             list.appendChild(li);
         });
     }
 
-    // Dynamic Category
+    // Category
     function handleCategoryChange() {
         const cat = document.getElementById('exp-category').value;
         document.getElementById('field-food').classList.add('hidden');
@@ -538,6 +631,7 @@
 
     // Expense
     function addExpense() {
+        if (viewingMonthKey !== 'current') return;
         const date = document.getElementById('exp-date').value;
         const category = document.getElementById('exp-category').value;
         const amount = parseFloat(document.getElementById('exp-amount').value);
@@ -563,8 +657,9 @@
             detailStr = document.getElementById('other-name').value.trim() || 'مەسرەفی گشتی';
         }
 
-        currentData.expenses.push({ id: Date.now(), date, category, detail: detailStr, amount, note });
-        saveCurrentData();
+        if (!appData.currentData.expenses) appData.currentData.expenses = [];
+        appData.currentData.expenses.push({ id: Date.now(), date, category, detail: detailStr, amount, note });
+        pushDataToCloud();
 
         document.getElementById('exp-amount').value = '';
         document.getElementById('exp-note').value = '';
@@ -576,8 +671,9 @@
     }
 
     function deleteExpense(id) {
-        currentData.expenses = currentData.expenses.filter(e => e.id !== id);
-        saveCurrentData();
+        if (viewingMonthKey !== 'current') return;
+        appData.currentData.expenses = appData.currentData.expenses.filter(e => e.id !== id);
+        pushDataToCloud();
         updateUI();
     }
 
@@ -587,12 +683,18 @@
     }
 
     function updateUI() {
-        const totalExpenses = currentData.expenses.reduce((s, e) => s + e.amount, 0);
-        const balance = currentData.salary - totalExpenses;
+        const data = getActiveData();
+        const expenses = data.expenses || [];
+        const totalExpenses = expenses.reduce((s, e) => s + e.amount, 0);
+        const balance = (data.salary || 0) - totalExpenses;
 
-        document.getElementById('disp-salary').innerText = currentData.salary.toLocaleString();
+        document.getElementById('disp-salary').innerText = (data.salary || 0).toLocaleString();
         document.getElementById('disp-expenses').innerText = totalExpenses.toLocaleString();
         document.getElementById('disp-balance').innerText = balance.toLocaleString();
+
+        if (viewingMonthKey === 'current') {
+            document.getElementById('salary-input').value = data.salary || '';
+        }
 
         renderAnalytics(totalExpenses);
         renderTasks();
@@ -602,6 +704,8 @@
     function renderAnalytics(total) {
         const box = document.getElementById('analytics-container');
         box.innerHTML = '';
+        const data = getActiveData();
+        const expenses = data.expenses || [];
 
         if (total === 0) {
             box.innerHTML = '<span style="font-size:11px; color:var(--text-sub);">هیچ ئامارێک بەردەست نییە</span>';
@@ -610,7 +714,7 @@
 
         const cats = ['خواردن / خواردنەوە', 'هاتووچۆ', 'جل و بەرگ', 'هیتر'];
         cats.forEach(c => {
-            const catTotal = currentData.expenses.filter(e => e.category === c).reduce((s, e) => s + e.amount, 0);
+            const catTotal = expenses.filter(e => e.category === c).reduce((s, e) => s + e.amount, 0);
             if (catTotal > 0) {
                 const pct = Math.round((catTotal / total) * 100);
                 box.innerHTML += `
@@ -632,12 +736,13 @@
         const list = document.getElementById('expense-list');
         list.innerHTML = '';
 
+        const data = getActiveData();
         const catFilter = document.getElementById('filter-category').value;
         const sortFilter = document.getElementById('filter-sort').value;
         const dateFilter = document.getElementById('filter-date').value;
         const searchText = document.getElementById('search-box').value.toLowerCase().trim();
 
-        let filtered = [...currentData.expenses];
+        let filtered = [...(data.expenses || [])];
 
         if (catFilter !== 'هەمووی') filtered = filtered.filter(e => e.category === catFilter);
         if (dateFilter) filtered = filtered.filter(e => e.date === dateFilter);
@@ -665,61 +770,26 @@
                 </div>
                 <div style="display:flex; align-items:center;">
                     <span class="item-amount">${e.amount.toLocaleString()}</span>
-                    <button class="btn-delete" onclick="deleteExpense(${e.id})">✕</button>
+                    ${viewingMonthKey === 'current' ? `<button class="btn-delete" onclick="deleteExpense(${e.id})">✕</button>` : ''}
                 </div>
             `;
             list.appendChild(li);
         });
     }
 
-    // EXPORT TO EXCEL (CSV)
-    function exportToCSV() {
-        if (currentData.expenses.length === 0) {
-            alert('هیچ مەسرەفێک نییە بۆ هەناردەکردن');
-            return;
-        }
-        let csv = '\uFEFFکتێگۆری,تفاسیل,بەروار,بڕی پارە,تێبینی\n';
-        currentData.expenses.forEach(e => {
-            csv += `"${e.category}","${e.detail}","${e.date}","${e.amount}","${e.note || ''}"\n`;
-        });
+    function printReport() { window.print(); }
 
+    function exportToCSV() {
+        const data = getActiveData();
+        const expenses = data.expenses || [];
+        if (expenses.length === 0) { alert('هیچ مەسرەفێک نییە'); return; }
+        let csv = '\uFEFFکتێگۆری,تفاسیل,بەروار,بڕی پارە,تێبینی\n';
+        expenses.forEach(e => { csv += `"${e.category}","${e.detail}","${e.date}","${e.amount}","${e.note || ''}"\n`; });
         const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement('a');
         link.href = URL.createObjectURL(blob);
-        link.download = `Expenses_${currentData.month}.csv`;
+        link.download = `Expenses_${viewingMonthKey}.csv`;
         link.click();
-    }
-
-    // BACKUP & RESTORE
-    function backupData() {
-        const fullBackup = { currentData, monthlyArchives };
-        const blob = new Blob([JSON.stringify(fullBackup, null, 2)], { type: 'application/json' });
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = `SmartSystem_Backup_${getTodayMonth()}.json`;
-        link.click();
-    }
-
-    function restoreData(event) {
-        const file = event.target.files[0];
-        if (!file) return;
-
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            try {
-                const data = JSON.parse(e.target.result);
-                if (data.currentData) {
-                    localStorage.setItem('currentMonthData', JSON.stringify(data.currentData));
-                    if (data.monthlyArchives) localStorage.setItem('monthlyArchives', JSON.stringify(data.monthlyArchives));
-                    location.reload();
-                } else {
-                    alert('فایلی هەڵەیە');
-                }
-            } catch (err) {
-                alert('کێشەیەک لە خوێندنەوەی فایلەکە هەیە');
-            }
-        };
-        reader.readAsText(file);
     }
 </script>
 
