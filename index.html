@@ -226,36 +226,73 @@
             gap: 10px;
         }
 
+        /* ===================================================
+           🖨️ PERFECT BLACK & WHITE PRINT STYLES
+           =================================================== */
         @media print {
-            body { background-color: #fff !important; color: #000 !important; padding: 0 !important; }
-            .glass-box, .stat-card { background: #fff !important; border: 1px solid #ccc !important; color: #000 !important; box-shadow: none !important; }
-            .form-group, .btn-action, .btn-secondary, .btn-delete, #search-box, .filter-grid, #filter-date, input, select, button { display: none !important; }
-            .app-title, .stat-card strong, .item-title, .item-note { color: #000 !important; -webkit-text-fill-color: initial !important; }
-            ul { max-height: none !important; }
+            body { 
+                background-color: #ffffff !important; 
+                color: #000000 !important; 
+                padding: 0 !important; 
+                font-family: Arial, sans-serif !important;
+            }
+
+            .glass-box, .stat-card, .account-card, .item-card { 
+                background: #ffffff !important; 
+                border: 1px solid #000000 !important; 
+                color: #000000 !important; 
+                box-shadow: none !important; 
+                backdrop-filter: none !important;
+                border-radius: 4px !important;
+                margin-bottom: 10px !important;
+            }
+
+            /* Hide Form Input Boxes, Buttons, & Filters during Print */
+            .main-input-field, .btn-action, .btn-secondary, .btn-delete, 
+            #search-box, .filter-grid, #filter-date, input, select, button, 
+            .bar-bg, #archive-selector-container { 
+                display: none !important; 
+            }
+
+            .app-title, .stat-card strong, .item-title, .item-note, h2, span, label, b { 
+                color: #000000 !important; 
+                -webkit-text-fill-color: #000000 !important; 
+            }
+
+            .stat-card.income strong, .stat-card.daily strong, 
+            .stat-card.expense strong, .stat-card.balance strong, .item-amount {
+                color: #000000 !important;
+            }
+
+            ul { max-height: none !important; overflow: visible !important; }
+            .item-card { page-break-inside: avoid; }
+            .dashboard-grid { grid-template-columns: repeat(4, 1fr) !important; gap: 5px !important; }
+            .accounts-grid { grid-template-columns: 1fr 1fr !important; gap: 5px !important; }
         }
     </style>
 </head>
 <body>
 
 <div class="app-header">
-    <div class="app-title">💎 Smart Wealth & Multi-Currency Manager</div>
+    <div class="app-title">💎 Smart Wealth Manager</div>
 </div>
 
 <!-- ARCHIVE & MONTH SELECTOR -->
-<div class="glass-box" style="border-color: rgba(245, 158, 11, 0.3);">
-    <h2>📚 ئەرشیفی مانگەکان</h2>
+<div class="glass-box" id="archive-selector-container" style="border-color: rgba(245, 158, 11, 0.3);">
+    <h2>📚 هەڵبژاردنی مانگ بۆ بینیین یان دەستکاری</h2>
     <div class="form-group">
-        <label>سەیرکردنی مانگی ئێستا یان مانگەکانی ڕابردوو:</label>
+        <label>مانگێک هەڵبژێرە بۆ گۆڕینی زانیارییەکان یان سڕینەوەیان:</label>
         <select id="archive-selector" onchange="loadSelectedMonth()">
             <option value="current">📅 مانگی ئێستا (چالاک)</option>
         </select>
+        <button id="btn-delete-archive" class="btn-secondary hidden" style="background: rgba(239, 68, 68, 0.2); color: var(--danger); border-color: var(--danger);" onclick="deleteCurrentArchiveMonth()">🗑️ سڕینەوەی ئەم مانگە لە ئەرشیف</button>
     </div>
 </div>
 
 <!-- TOTAL SAVINGS ALL TIME -->
 <div class="glass-box" style="background: rgba(88, 28, 135, 0.2); border-color: rgba(168, 85, 247, 0.4);">
-    <h2 style="color: #e9d5ff;">🏛️ کۆی گشتیی پاشەکەوتی مانگەکانی ڕابردوو</h2>
-    <p style="font-size: 10px; color: #c084fc; margin-bottom: 8px;">ئەم پارەیە هی مانگە کۆتایی پێهاتووەکانە کە دەستکاری ناکرێت</p>
+    <h2 style="color: #e9d5ff;">🏛️ کۆی گشتیی پاشەکەوتی هەموو مانگەکان</h2>
+    <p style="font-size: 10px; color: #c084fc; margin-bottom: 8px;">سافی کۆی گشتی هەموو مانگەکانی ئەرشیف بە بێ مانگی دیاریکراو</p>
     <div style="font-size: 18px; font-weight: bold; color: #fff;">
         <span id="disp-past-iqd">0</span> د.ع | <span id="disp-past-usd">0</span> $
     </div>
@@ -531,7 +568,7 @@
     <h2>
         <span>🔍 گەڕان و فلتەر</span>
         <div>
-            <button class="btn-secondary" onclick="printReport()">🖨️ پرێنت</button>
+            <button class="btn-secondary" onclick="printReport()">🖨️ پرێنت (ڕەش و سپی)</button>
             <button class="btn-secondary" onclick="exportToCSV()">📊 Excel</button>
         </div>
     </h2>
@@ -638,61 +675,69 @@
 
     function loadSelectedMonth() {
         viewingMonthKey = document.getElementById('archive-selector').value;
-        const inputs = document.querySelectorAll('.main-input-field');
+        const delBtn = document.getElementById('btn-delete-archive');
         
         if (viewingMonthKey !== 'current') {
-            inputs.forEach(el => el.style.display = 'none');
+            delBtn.classList.remove('hidden');
         } else {
-            inputs.forEach(el => el.style.display = 'block');
+            delBtn.classList.add('hidden');
         }
         updateUI();
     }
 
+    function deleteCurrentArchiveMonth() {
+        if (viewingMonthKey === 'current') return;
+        if (confirm(`دڵنیایت لە سڕینەوەی بەکەمایی ئەم مانگە (${viewingMonthKey})؟ سەرجەم زانیارییەکانی دەسڕێنەوە!`)) {
+            delete appData.archives[viewingMonthKey];
+            saveData();
+            viewingMonthKey = 'current';
+            populateArchiveSelector();
+            document.getElementById('archive-selector').value = 'current';
+            loadSelectedMonth();
+        }
+    }
+
     function getActiveData() {
         if (viewingMonthKey === 'current') return appData.currentData;
-        return appData.archives[viewingMonthKey] || { 
-            salaryIQD: 0, salaryUSD: 0, qiIQD: 0, qiUSD: 0, fibIQD: 0, fibUSD: 0, cashIQD: 0, cashUSD: 0, stashIQD: 0, stashUSD: 0, expenses: [], tasks: [], trades: [] 
-        };
+        if (!appData.archives[viewingMonthKey]) {
+            appData.archives[viewingMonthKey] = { 
+                salaryIQD: 0, salaryUSD: 0, qiIQD: 0, qiUSD: 0, fibIQD: 0, fibUSD: 0, cashIQD: 0, cashUSD: 0, stashIQD: 0, stashUSD: 0, expenses: [], tasks: [], trades: [] 
+            };
+        }
+        return appData.archives[viewingMonthKey];
     }
 
     function saveSalary() {
-        if (viewingMonthKey !== 'current') return;
-        const valIQD = parseFloat(document.getElementById('salary-iqd-input').value) || 0;
-        const valUSD = parseFloat(document.getElementById('salary-usd-input').value) || 0;
-
-        appData.currentData.salaryIQD = valIQD;
-        appData.currentData.salaryUSD = valUSD;
+        const active = getActiveData();
+        active.salaryIQD = parseFloat(document.getElementById('salary-iqd-input').value) || 0;
+        active.salaryUSD = parseFloat(document.getElementById('salary-usd-input').value) || 0;
         saveData();
         updateUI();
     }
 
-    // Save Cash Balances (Wallet & Stash USD/IQD)
     function saveCashBalances() {
-        if (viewingMonthKey !== 'current') return;
-        appData.currentData.cashIQD = parseFloat(document.getElementById('cash-iqd-input').value) || 0;
-        appData.currentData.cashUSD = parseFloat(document.getElementById('cash-usd-input').value) || 0;
-        appData.currentData.stashIQD = parseFloat(document.getElementById('stash-iqd-input').value) || 0;
-        appData.currentData.stashUSD = parseFloat(document.getElementById('stash-usd-input').value) || 0;
+        const active = getActiveData();
+        active.cashIQD = parseFloat(document.getElementById('cash-iqd-input').value) || 0;
+        active.cashUSD = parseFloat(document.getElementById('cash-usd-input').value) || 0;
+        active.stashIQD = parseFloat(document.getElementById('stash-iqd-input').value) || 0;
+        active.stashUSD = parseFloat(document.getElementById('stash-usd-input').value) || 0;
 
         saveData();
         updateUI();
     }
 
-    // Save Bank Balances (Qi & FIB USD/IQD)
     function saveBankBalances() {
-        if (viewingMonthKey !== 'current') return;
-        appData.currentData.qiIQD = parseFloat(document.getElementById('qi-iqd-input').value) || 0;
-        appData.currentData.qiUSD = parseFloat(document.getElementById('qi-usd-input').value) || 0;
-        appData.currentData.fibIQD = parseFloat(document.getElementById('fib-iqd-input').value) || 0;
-        appData.currentData.fibUSD = parseFloat(document.getElementById('fib-usd-input').value) || 0;
+        const active = getActiveData();
+        active.qiIQD = parseFloat(document.getElementById('qi-iqd-input').value) || 0;
+        active.qiUSD = parseFloat(document.getElementById('qi-usd-input').value) || 0;
+        active.fibIQD = parseFloat(document.getElementById('fib-iqd-input').value) || 0;
+        active.fibUSD = parseFloat(document.getElementById('fib-usd-input').value) || 0;
 
         saveData();
         updateUI();
     }
 
-    // Currency Trade (Buy/Sell USD)
     function executeTrade() {
-        if (viewingMonthKey !== 'current') return;
         const type = document.getElementById('trade-type').value;
         const usdAmount = parseFloat(document.getElementById('trade-usd').value);
         const rate = parseFloat(document.getElementById('trade-rate').value);
@@ -703,9 +748,10 @@
         }
 
         const iqdCost = (usdAmount / 100) * rate;
+        const active = getActiveData();
 
-        if (!appData.currentData.trades) appData.currentData.trades = [];
-        appData.currentData.trades.push({
+        if (!active.trades) active.trades = [];
+        active.trades.push({
             id: Date.now(),
             type,
             usdAmount,
@@ -720,9 +766,7 @@
         updateUI();
     }
 
-    // Daily Tasks / Jobs
     function addTask() {
-        if (viewingMonthKey !== 'current') return;
         const name = document.getElementById('task-name').value.trim();
         const date = document.getElementById('task-date').value;
         const time = document.getElementById('task-time').value;
@@ -731,8 +775,9 @@
         const note = document.getElementById('task-note').value.trim();
 
         if (name && date) {
-            if (!appData.currentData.tasks) appData.currentData.tasks = [];
-            appData.currentData.tasks.push({ id: Date.now(), name, date, time, amount, currency, note });
+            const active = getActiveData();
+            if (!active.tasks) active.tasks = [];
+            active.tasks.push({ id: Date.now(), name, date, time, amount, currency, note });
             saveData();
 
             document.getElementById('task-name').value = '';
@@ -745,8 +790,8 @@
     }
 
     function deleteTask(id) {
-        if (viewingMonthKey !== 'current') return;
-        appData.currentData.tasks = appData.currentData.tasks.filter(t => t.id !== id);
+        const active = getActiveData();
+        active.tasks = active.tasks.filter(t => t.id !== id);
         saveData();
         updateUI();
     }
@@ -776,7 +821,7 @@
                     <span style="font-size:13px; font-weight:bold; color:var(--warning); margin-left:10px;">
                         ${t.amount ? '+' + t.amount.toLocaleString() + ' ' + currSymbol : '0 ' + currSymbol}
                     </span>
-                    ${viewingMonthKey === 'current' ? `<button class="btn-delete" onclick="deleteTask(${t.id})">✕</button>` : ''}
+                    <button class="btn-delete" onclick="deleteTask(${t.id})">✕</button>
                 </div>
             `;
             list.appendChild(li);
@@ -797,7 +842,6 @@
     }
 
     function addExpense() {
-        if (viewingMonthKey !== 'current') return;
         const date = document.getElementById('exp-date').value;
         const category = document.getElementById('exp-category').value;
         const amount = parseFloat(document.getElementById('exp-amount').value);
@@ -824,8 +868,9 @@
             detailStr = document.getElementById('other-name').value.trim() || 'مەسرەفی گشتی';
         }
 
-        if (!appData.currentData.expenses) appData.currentData.expenses = [];
-        appData.currentData.expenses.push({ id: Date.now(), date, category, detail: detailStr, amount, currency, note });
+        const active = getActiveData();
+        if (!active.expenses) active.expenses = [];
+        active.expenses.push({ id: Date.now(), date, category, detail: detailStr, amount, currency, note });
         saveData();
 
         document.getElementById('exp-amount').value = '';
@@ -838,8 +883,8 @@
     }
 
     function deleteExpense(id) {
-        if (viewingMonthKey !== 'current') return;
-        appData.currentData.expenses = appData.currentData.expenses.filter(e => e.id !== id);
+        const active = getActiveData();
+        active.expenses = active.expenses.filter(e => e.id !== id);
         saveData();
         updateUI();
     }
@@ -855,14 +900,12 @@
         const tasks = data.tasks || [];
         const trades = data.trades || [];
 
-        // Totals Expenses
         let expIQD = 0, expUSD = 0;
         expenses.forEach(e => {
             if (e.currency === 'USD') expUSD += e.amount;
             else expIQD += e.amount;
         });
 
-        // Totals Daily Income
         let taskIQD = 0, taskUSD = 0;
         tasks.forEach(t => {
             if (t.currency === 'USD') taskUSD += (t.amount || 0);
@@ -884,7 +927,6 @@
         const stashIQD = data.stashIQD || (typeof data.stashedCash === 'number' ? data.stashedCash : 0);
         const stashUSD = data.stashUSD || 0;
 
-        // Trade Calculation
         let tradeIQDCost = 0;
         let tradeUSDGained = 0;
         trades.forEach(tr => {
@@ -903,13 +945,12 @@
         const netIQD = totalIncomeIQD - (expIQD + tradeIQDCost);
         const netUSD = totalIncomeUSD + tradeUSDGained - expUSD;
 
-        // Display Main Stats
+        // Display Stats
         document.getElementById('disp-salary').innerText = `${salaryIQD.toLocaleString()} د.ع | ${salaryUSD.toLocaleString()}$`;
         document.getElementById('disp-daily-income').innerText = `${taskIQD.toLocaleString()} د.ع | ${taskUSD.toLocaleString()}$`;
         document.getElementById('disp-expenses').innerText = `${(expIQD + tradeIQDCost).toLocaleString()} د.ع | ${expUSD.toLocaleString()}$`;
         document.getElementById('disp-balance').innerText = `${netIQD.toLocaleString()} د.ع | ${netUSD.toLocaleString()}$`;
 
-        // Accounts Breakdown
         document.getElementById('disp-cash-iqd').innerText = cashIQD.toLocaleString();
         document.getElementById('disp-cash-usd').innerText = cashUSD.toLocaleString();
         
@@ -922,54 +963,56 @@
         document.getElementById('disp-fib-iqd').innerText = fibIQD.toLocaleString();
         document.getElementById('disp-fib-usd').innerText = fibUSD.toLocaleString();
 
-        // Calculate Past Archives Total
+        // Fill inputs with current selected month values
+        document.getElementById('salary-iqd-input').value = salaryIQD || '';
+        document.getElementById('salary-usd-input').value = salaryUSD || '';
+
+        document.getElementById('qi-iqd-input').value = qiIQD || '';
+        document.getElementById('qi-usd-input').value = qiUSD || '';
+
+        document.getElementById('fib-iqd-input').value = fibIQD || '';
+        document.getElementById('fib-usd-input').value = fibUSD || '';
+
+        document.getElementById('cash-iqd-input').value = cashIQD || '';
+        document.getElementById('cash-usd-input').value = cashUSD || '';
+
+        document.getElementById('stash-iqd-input').value = stashIQD || '';
+        document.getElementById('stash-usd-input').value = stashUSD || '';
+
+        // Calculate All Archives Total (Excluding current view)
         let pastIQD = 0, pastUSD = 0;
         if (appData.archives) {
-            Object.values(appData.archives).forEach(arc => {
-                const aSalaryIQD = arc.salaryIQD || arc.salary || 0;
-                const aSalaryUSD = arc.salaryUSD || 0;
+            Object.keys(appData.archives).forEach(arcKey => {
+                if (arcKey !== viewingMonthKey) {
+                    const arc = appData.archives[arcKey];
+                    const aSalaryIQD = arc.salaryIQD || arc.salary || 0;
+                    const aSalaryUSD = arc.salaryUSD || 0;
 
-                let aExpIQD = 0, aExpUSD = 0;
-                (arc.expenses || []).forEach(e => {
-                    if (e.currency === 'USD') aExpUSD += e.amount;
-                    else aExpIQD += e.amount;
-                });
+                    let aExpIQD = 0, aExpUSD = 0;
+                    (arc.expenses || []).forEach(e => {
+                        if (e.currency === 'USD') aExpUSD += e.amount;
+                        else aExpIQD += e.amount;
+                    });
 
-                let aTaskIQD = 0, aTaskUSD = 0;
-                (arc.tasks || []).forEach(t => {
-                    if (t.currency === 'USD') aTaskUSD += (t.amount || 0);
-                    else aTaskIQD += (t.amount || 0);
-                });
+                    let aTaskIQD = 0, aTaskUSD = 0;
+                    (arc.tasks || []).forEach(t => {
+                        if (t.currency === 'USD') aTaskUSD += (t.amount || 0);
+                        else aTaskIQD += (t.amount || 0);
+                    });
 
-                let aTradeIQD = 0, aTradeUSD = 0;
-                (arc.trades || []).forEach(tr => {
-                    if (tr.type === 'buy') { aTradeIQD += tr.iqdCost; aTradeUSD += tr.usdAmount; }
-                    else { aTradeIQD -= tr.iqdCost; aTradeUSD -= tr.usdAmount; }
-                });
+                    let aTradeIQD = 0, aTradeUSD = 0;
+                    (arc.trades || []).forEach(tr => {
+                        if (tr.type === 'buy') { aTradeIQD += tr.iqdCost; aTradeUSD += tr.usdAmount; }
+                        else { aTradeIQD -= tr.iqdCost; aTradeUSD -= tr.usdAmount; }
+                    });
 
-                pastIQD += (aSalaryIQD + aTaskIQD) - (aExpIQD + aTradeIQD);
-                pastUSD += (aSalaryUSD + aTaskUSD + aTradeUSD) - aExpUSD;
+                    pastIQD += (aSalaryIQD + aTaskIQD) - (aExpIQD + aTradeIQD);
+                    pastUSD += (aSalaryUSD + aTaskUSD + aTradeUSD) - aExpUSD;
+                }
             });
         }
         document.getElementById('disp-past-iqd').innerText = pastIQD.toLocaleString();
         document.getElementById('disp-past-usd').innerText = pastUSD.toLocaleString();
-
-        if (viewingMonthKey === 'current') {
-            document.getElementById('salary-iqd-input').value = salaryIQD || '';
-            document.getElementById('salary-usd-input').value = salaryUSD || '';
-
-            document.getElementById('qi-iqd-input').value = qiIQD || '';
-            document.getElementById('qi-usd-input').value = qiUSD || '';
-
-            document.getElementById('fib-iqd-input').value = fibIQD || '';
-            document.getElementById('fib-usd-input').value = fibUSD || '';
-
-            document.getElementById('cash-iqd-input').value = cashIQD || '';
-            document.getElementById('cash-usd-input').value = cashUSD || '';
-
-            document.getElementById('stash-iqd-input').value = stashIQD || '';
-            document.getElementById('stash-usd-input').value = stashUSD || '';
-        }
 
         renderAnalytics(expIQD + tradeIQDCost);
         renderTasks();
@@ -1046,7 +1089,7 @@
                 </div>
                 <div style="display:flex; align-items:center;">
                     <span class="item-amount">${e.amount.toLocaleString()} ${currSymbol}</span>
-                    ${viewingMonthKey === 'current' ? `<button class="btn-delete" onclick="deleteExpense(${e.id})">✕</button>` : ''}
+                    <button class="btn-delete" onclick="deleteExpense(${e.id})">✕</button>
                 </div>
             `;
             list.appendChild(li);
