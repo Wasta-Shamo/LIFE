@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Smart Life Manager</title>
+    <title>Smart Wealth & Multi-Currency Manager</title>
     
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0f172a">
@@ -58,7 +58,7 @@
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 8px;
-            margin-bottom: 25px;
+            margin-bottom: 15px;
         }
 
         .stat-card {
@@ -71,11 +71,34 @@
         }
 
         .stat-card span { display: block; font-size: 10px; color: var(--text-sub); margin-bottom: 4px; }
-        .stat-card strong { font-size: 12px; font-weight: 700; }
+        .stat-card strong { font-size: 11px; font-weight: 700; display: block; }
         .stat-card.income strong { color: var(--success); }
         .stat-card.daily strong { color: #f59e0b; }
         .stat-card.expense strong { color: var(--danger); }
         .stat-card.balance strong { color: #38bdf8; }
+
+        .accounts-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .account-card {
+            background: rgba(15, 23, 42, 0.5);
+            border: 1px solid var(--card-border);
+            padding: 10px;
+            border-radius: 12px;
+            font-size: 11px;
+        }
+
+        .account-card-title {
+            color: var(--text-sub);
+            font-size: 10px;
+            margin-bottom: 5px;
+            display: flex;
+            justify-content: space-between;
+        }
 
         .glass-box {
             background: var(--card-bg);
@@ -205,12 +228,12 @@
 <body>
 
 <div class="app-header">
-    <div class="app-title">⚡ Smart System</div>
+    <div class="app-title">💎 Smart Wealth & Multi-Currency Manager</div>
 </div>
 
 <!-- ARCHIVE & MONTH SELECTOR -->
 <div class="glass-box" style="border-color: rgba(245, 158, 11, 0.3);">
-    <h2>📚 ئەرشیفی خەزنکراوی مانگەکان</h2>
+    <h2>📚 ئەرشیفی مانگەکان</h2>
     <div class="form-group">
         <label>سەیرکردنی مانگی ئێستا یان مانگەکانی ڕابردوو:</label>
         <select id="archive-selector" onchange="loadSelectedMonth()">
@@ -219,23 +242,45 @@
     </div>
 </div>
 
-<!-- DASHBOARD -->
+<!-- TOTAL SAVINGS ALL TIME -->
+<div class="glass-box" style="background: rgba(88, 28, 135, 0.2); border-color: rgba(168, 85, 247, 0.4);">
+    <h2 style="color: #e9d5ff;">🏛️ کۆی گشتیی پاشەکەوتی مانگەکانی ڕابردوو</h2>
+    <p style="font-size: 10px; color: #c084fc; margin-bottom: 8px;">ئەم پارەیە هی مانگە کۆتایی پێهاتووەکانە کە دەستکاری ناکرێت</p>
+    <div style="font-size: 18px; font-weight: bold; color: #fff;">
+        <span id="disp-past-iqd">0</span> د.ع | <span id="disp-past-usd">0</span> $
+    </div>
+</div>
+
+<!-- DASHBOARD MAIN STATS -->
 <div class="dashboard-grid">
     <div class="stat-card income">
         <span>مووچەی مانگانە</span>
-        <strong id="disp-salary">0</strong>
+        <strong id="disp-salary">0 د.ع</strong>
     </div>
     <div class="stat-card daily">
-        <span>کاری ڕۆژانە</span>
-        <strong id="disp-daily-income">0</strong>
+        <span>داهاتی کاری ڕۆژانە</span>
+        <strong id="disp-daily-income">0 د.ع | 0$</strong>
     </div>
     <div class="stat-card expense">
-        <span>مەسرەف</span>
-        <strong id="disp-expenses">0</strong>
+        <span>کۆی مەسرەف</span>
+        <strong id="disp-expenses">0 د.ع | 0$</strong>
     </div>
     <div class="stat-card balance">
-        <span>توفیر (صافی)</span>
-        <strong id="disp-balance">0</strong>
+        <span>سافی ئەم مانگە (توفیر)</span>
+        <strong id="disp-balance">0 د.ع | 0$</strong>
+    </div>
+</div>
+
+<!-- ACCOUNTS BREAKDOWN -->
+<div class="accounts-grid">
+    <div class="account-card">
+        <div class="account-card-title">💵 شوێنی کاش (نەقد)</div>
+        <div>جزدانی باخەڵ: <b id="disp-cash-iqd">0</b> د.ع | <b id="disp-cash-usd">0</b>$</div>
+    </div>
+    <div class="account-card">
+        <div class="account-card-title">💳 حسابە بانکییەکان</div>
+        <div>Qi Card: <b id="disp-qi">0</b> د.ع</div>
+        <div>FIB: <b id="disp-fib">0</b> د.ع</div>
     </div>
 </div>
 
@@ -245,12 +290,55 @@
     <div id="analytics-container"></div>
 </div>
 
-<!-- SALARY -->
+<!-- SALARY ENTRY -->
 <div class="glass-box main-input-field">
     <h2>💵 دیاریکردنی مووچەی مانگانە</h2>
     <div class="form-group">
         <input type="number" id="salary-input" placeholder="بڕی مووچە (د.ع)">
         <button class="btn-action" onclick="saveSalary()">تۆمارکردنی مووچە</button>
+    </div>
+</div>
+
+<!-- BANK BALANCES ENTRY (کۆدی نوێ بۆ بانکەکان) -->
+<div class="glass-box main-input-field" style="border-color: rgba(16, 185, 129, 0.3);">
+    <h2>💳 ڕێکخستنی پارەی ناو کارتە بانکییەکان</h2>
+    <div class="form-group">
+        <div style="display: flex; gap: 10px;">
+            <div style="flex:1;">
+                <label>پارەی Qi Card (د.ع):</label>
+                <input type="number" id="qi-input" placeholder="0">
+            </div>
+            <div style="flex:1;">
+                <label>پارەی FIB (د.ع):</label>
+                <input type="number" id="fib-input" placeholder="0">
+            </div>
+        </div>
+        <button class="btn-action" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);" onclick="saveBankBalances()">نوێکردنەوەی هەژمارە بانکییەکان</button>
+    </div>
+</div>
+
+<!-- CURRENCY EXCHANGE / USD TRADING -->
+<div class="glass-box main-input-field" style="border-color: rgba(56, 189, 248, 0.3);">
+    <h2>🔀 ئاڵوگۆڕی دراو (کڕین و فرۆشتنی دۆلار)</h2>
+    <div class="form-group">
+        <label>جۆری مامەڵە:</label>
+        <select id="trade-type">
+            <option value="buy">🛒 کڕینی دۆلار (دانی دینار ⬅️ وەرگرتنی دۆلار)</option>
+            <option value="sell">🏷️ فرۆشتنی دۆلار (دانی دۆلار ⬅️ وەرگرتنی دینار)</option>
+        </select>
+        
+        <div style="display: flex; gap: 10px;">
+            <div style="flex:1;">
+                <label>بڕی دۆلار ($):</label>
+                <input type="number" id="trade-usd" placeholder="نموونە: 100">
+            </div>
+            <div style="flex:1;">
+                <label>نرخی ئاڵوگۆڕ (بەرامبەر 100$):</label>
+                <input type="number" id="trade-rate" placeholder="نموونە: 151000">
+            </div>
+        </div>
+
+        <button class="btn-action" style="background: linear-gradient(135deg, #0284c7 0%, #06b6d4 100%);" onclick="executeTrade()">تۆمارکردنی ئاڵوگۆڕ</button>
     </div>
 </div>
 
@@ -272,8 +360,19 @@
             </div>
         </div>
 
-        <label>بڕی پارەی پەیداکراو (د.ع):</label>
-        <input type="number" id="task-amount" placeholder="بڕی پارە (ئەگەر هەبێت)">
+        <div style="display: flex; gap: 10px;">
+            <div style="flex:2;">
+                <label>بڕی پارەی پەیداکراو:</label>
+                <input type="number" id="task-amount" placeholder="بڕی پارە">
+            </div>
+            <div style="flex:1;">
+                <label>دراو:</label>
+                <select id="task-currency">
+                    <option value="IQD">د.ع</option>
+                    <option value="USD">$</option>
+                </select>
+            </div>
+        </div>
 
         <label>تێبینی:</label>
         <input type="text" id="task-note" placeholder="تێبینی...">
@@ -340,8 +439,19 @@
             <input type="text" id="other-name" placeholder="بۆ چی بووە؟">
         </div>
 
-        <label>بڕی پارە (د.ع):</label>
-        <input type="number" id="exp-amount" placeholder="نرخی مەسرەف">
+        <div style="display: flex; gap: 10px;">
+            <div style="flex:2;">
+                <label>بڕی پارە:</label>
+                <input type="number" id="exp-amount" placeholder="نرخی مەسرەف">
+            </div>
+            <div style="flex:1;">
+                <label>دراو:</label>
+                <select id="exp-currency">
+                    <option value="IQD">د.ع</option>
+                    <option value="USD">$</option>
+                </select>
+            </div>
+        </div>
 
         <label>تێبینی:</label>
         <input type="text" id="exp-note" placeholder="تێبینی...">
@@ -400,7 +510,7 @@
 
     let appData = JSON.parse(localStorage.getItem('smartAppData')) || {
         currentMonth: getCurrentMonthKey(),
-        currentData: { salary: 0, expenses: [], tasks: [] },
+        currentData: { salary: 0, qiBalance: 0, fibBalance: 0, expenses: [], tasks: [], trades: [] },
         archives: {}
     };
 
@@ -430,7 +540,7 @@
             if (!appData.archives) appData.archives = {};
             appData.archives[appData.currentMonth] = JSON.parse(JSON.stringify(appData.currentData));
             appData.currentMonth = nowKey;
-            appData.currentData = { salary: 0, expenses: [], tasks: [] };
+            appData.currentData = { salary: 0, qiBalance: 0, fibBalance: 0, expenses: [], tasks: [], trades: [] };
             saveData();
         }
     }
@@ -460,7 +570,7 @@
 
     function getActiveData() {
         if (viewingMonthKey === 'current') return appData.currentData;
-        return appData.archives[viewingMonthKey] || { salary: 0, expenses: [], tasks: [] };
+        return appData.archives[viewingMonthKey] || { salary: 0, qiBalance: 0, fibBalance: 0, expenses: [], tasks: [], trades: [] };
     }
 
     function saveSalary() {
@@ -473,6 +583,49 @@
         }
     }
 
+    // Save Bank Balances (Qi & FIB)
+    function saveBankBalances() {
+        if (viewingMonthKey !== 'current') return;
+        const qiVal = parseFloat(document.getElementById('qi-input').value) || 0;
+        const fibVal = parseFloat(document.getElementById('fib-input').value) || 0;
+
+        appData.currentData.qiBalance = qiVal;
+        appData.currentData.fibBalance = fibVal;
+
+        saveData();
+        updateUI();
+    }
+
+    // Currency Trade (Buy/Sell USD)
+    function executeTrade() {
+        if (viewingMonthKey !== 'current') return;
+        const type = document.getElementById('trade-type').value;
+        const usdAmount = parseFloat(document.getElementById('trade-usd').value);
+        const rate = parseFloat(document.getElementById('trade-rate').value);
+
+        if (isNaN(usdAmount) || usdAmount <= 0 || isNaN(rate) || rate <= 0) {
+            alert('تکایە بڕی دۆلار و نرخەکەی بە دروستی بنووسە');
+            return;
+        }
+
+        const iqdCost = (usdAmount / 100) * rate;
+
+        if (!appData.currentData.trades) appData.currentData.trades = [];
+        appData.currentData.trades.push({
+            id: Date.now(),
+            type,
+            usdAmount,
+            rate,
+            iqdCost,
+            date: new Date().toISOString().split('T')[0]
+        });
+
+        saveData();
+        document.getElementById('trade-usd').value = '';
+        document.getElementById('trade-rate').value = '';
+        updateUI();
+    }
+
     // Daily Tasks / Jobs
     function addTask() {
         if (viewingMonthKey !== 'current') return;
@@ -480,11 +633,12 @@
         const date = document.getElementById('task-date').value;
         const time = document.getElementById('task-time').value;
         const amount = parseFloat(document.getElementById('task-amount').value) || 0;
+        const currency = document.getElementById('task-currency').value;
         const note = document.getElementById('task-note').value.trim();
 
         if (name && date) {
             if (!appData.currentData.tasks) appData.currentData.tasks = [];
-            appData.currentData.tasks.push({ id: Date.now(), name, date, time, amount, note });
+            appData.currentData.tasks.push({ id: Date.now(), name, date, time, amount, currency, note });
             saveData();
 
             document.getElementById('task-name').value = '';
@@ -515,6 +669,7 @@
         }
 
         sorted.forEach(t => {
+            const currSymbol = (t.currency === 'USD') ? '$' : 'د.ع';
             const li = document.createElement('li');
             li.className = 'item-card';
             li.innerHTML = `
@@ -524,8 +679,8 @@
                     ${t.note ? `<span class="item-note">📝 ${t.note}</span>` : ''}
                 </div>
                 <div style="display:flex; align-items:center;">
-                    <span style="font-size:13px; font-weight:bold; color:var(--warning); font-weight:bold; margin-left:10px;">
-                        ${t.amount ? '+' + t.amount.toLocaleString() + ' د.ع' : '0 د.ع'}
+                    <span style="font-size:13px; font-weight:bold; color:var(--warning); margin-left:10px;">
+                        ${t.amount ? '+' + t.amount.toLocaleString() + ' ' + currSymbol : '0 ' + currSymbol}
                     </span>
                     ${viewingMonthKey === 'current' ? `<button class="btn-delete" onclick="deleteTask(${t.id})">✕</button>` : ''}
                 </div>
@@ -534,7 +689,6 @@
         });
     }
 
-    // Category Selector
     function handleCategoryChange() {
         const cat = document.getElementById('exp-category').value;
         document.getElementById('field-food').classList.add('hidden');
@@ -548,12 +702,12 @@
         else if (cat === 'هیتر') document.getElementById('field-other').classList.remove('hidden');
     }
 
-    // Expenses
     function addExpense() {
         if (viewingMonthKey !== 'current') return;
         const date = document.getElementById('exp-date').value;
         const category = document.getElementById('exp-category').value;
         const amount = parseFloat(document.getElementById('exp-amount').value);
+        const currency = document.getElementById('exp-currency').value;
         const note = document.getElementById('exp-note').value.trim();
 
         if (!date || isNaN(amount) || amount <= 0) {
@@ -577,7 +731,7 @@
         }
 
         if (!appData.currentData.expenses) appData.currentData.expenses = [];
-        appData.currentData.expenses.push({ id: Date.now(), date, category, detail: detailStr, amount, note });
+        appData.currentData.expenses.push({ id: Date.now(), date, category, detail: detailStr, amount, currency, note });
         saveData();
 
         document.getElementById('exp-amount').value = '';
@@ -605,23 +759,92 @@
         const data = getActiveData();
         const expenses = data.expenses || [];
         const tasks = data.tasks || [];
+        const trades = data.trades || [];
 
-        const totalExpenses = expenses.reduce((s, e) => s + e.amount, 0);
-        const totalDailyIncome = tasks.reduce((s, t) => s + (t.amount || 0), 0);
-        const totalSalary = data.salary || 0;
+        // Totals
+        let expIQD = 0, expUSD = 0;
+        expenses.forEach(e => {
+            if (e.currency === 'USD') expUSD += e.amount;
+            else expIQD += e.amount;
+        });
 
-        const netBalance = (totalSalary + totalDailyIncome) - totalExpenses;
+        let taskIQD = 0, taskUSD = 0;
+        tasks.forEach(t => {
+            if (t.currency === 'USD') taskUSD += (t.amount || 0);
+            else taskIQD += (t.amount || 0);
+        });
 
-        document.getElementById('disp-salary').innerText = totalSalary.toLocaleString();
-        document.getElementById('disp-daily-income').innerText = totalDailyIncome.toLocaleString();
-        document.getElementById('disp-expenses').innerText = totalExpenses.toLocaleString();
-        document.getElementById('disp-balance').innerText = netBalance.toLocaleString();
+        const salaryIQD = data.salary || 0;
+        const qiVal = data.qiBalance || 0;
+        const fibVal = data.fibBalance || 0;
+
+        // Trade Calculation
+        let tradeIQDCost = 0;
+        let tradeUSDGained = 0;
+        trades.forEach(tr => {
+            if (tr.type === 'buy') {
+                tradeIQDCost += tr.iqdCost;
+                tradeUSDGained += tr.usdAmount;
+            } else if (tr.type === 'sell') {
+                tradeIQDCost -= tr.iqdCost;
+                tradeUSDGained -= tr.usdAmount;
+            }
+        });
+
+        const totalIncomeIQD = salaryIQD + taskIQD;
+        const netIQD = totalIncomeIQD - (expIQD + tradeIQDCost);
+        const netUSD = taskUSD + tradeUSDGained - expUSD;
+
+        // Cash In Pocket = Net IQD minus Bank Balances
+        const cashInPocketIQD = netIQD - (qiVal + fibVal);
+
+        // Display Main Stats
+        document.getElementById('disp-salary').innerText = salaryIQD.toLocaleString() + ' د.ع';
+        document.getElementById('disp-daily-income').innerText = `${taskIQD.toLocaleString()} د.ع | ${taskUSD}$`;
+        document.getElementById('disp-expenses').innerText = `${(expIQD + tradeIQDCost).toLocaleString()} د.ع | ${expUSD}$`;
+        document.getElementById('disp-balance').innerText = `${netIQD.toLocaleString()} د.ع | ${netUSD}$`;
+
+        // Accounts Breakdown
+        document.getElementById('disp-cash-iqd').innerText = cashInPocketIQD.toLocaleString();
+        document.getElementById('disp-cash-usd').innerText = netUSD;
+        document.getElementById('disp-qi').innerText = qiVal.toLocaleString();
+        document.getElementById('disp-fib').innerText = fibVal.toLocaleString();
+
+        // Calculate Past Archives Total
+        let pastIQD = 0, pastUSD = 0;
+        if (appData.archives) {
+            Object.values(appData.archives).forEach(arc => {
+                const aSalary = arc.salary || 0;
+                let aExpIQD = 0, aExpUSD = 0;
+                (arc.expenses || []).forEach(e => {
+                    if (e.currency === 'USD') aExpUSD += e.amount;
+                    else aExpIQD += e.amount;
+                });
+                let aTaskIQD = 0, aTaskUSD = 0;
+                (arc.tasks || []).forEach(t => {
+                    if (t.currency === 'USD') aTaskUSD += (t.amount || 0);
+                    else aTaskIQD += (t.amount || 0);
+                });
+                let aTradeIQD = 0, aTradeUSD = 0;
+                (arc.trades || []).forEach(tr => {
+                    if (tr.type === 'buy') { aTradeIQD += tr.iqdCost; aTradeUSD += tr.usdAmount; }
+                    else { aTradeIQD -= tr.iqdCost; aTradeUSD -= tr.usdAmount; }
+                });
+
+                pastIQD += (aSalary + aTaskIQD) - (aExpIQD + aTradeIQD);
+                pastUSD += aTaskUSD + aTradeUSD - aExpUSD;
+            });
+        }
+        document.getElementById('disp-past-iqd').innerText = pastIQD.toLocaleString();
+        document.getElementById('disp-past-usd').innerText = pastUSD.toLocaleString();
 
         if (viewingMonthKey === 'current') {
-            document.getElementById('salary-input').value = totalSalary || '';
+            document.getElementById('salary-input').value = salaryIQD || '';
+            document.getElementById('qi-input').value = qiVal || '';
+            document.getElementById('fib-input').value = fibVal || '';
         }
 
-        renderAnalytics(totalExpenses);
+        renderAnalytics(expIQD + tradeIQDCost);
         renderTasks();
         renderExpenses();
     }
@@ -639,7 +862,7 @@
 
         const cats = ['خواردن / خواردنەوە', 'هاتووچۆ', 'جل و بەرگ', 'هیتر'];
         cats.forEach(c => {
-            const catTotal = expenses.filter(e => e.category === c).reduce((s, e) => s + e.amount, 0);
+            const catTotal = expenses.filter(e => e.category === c && (e.currency !== 'USD')).reduce((s, e) => s + e.amount, 0);
             if (catTotal > 0) {
                 const pct = Math.round((catTotal / total) * 100);
                 box.innerHTML += `
@@ -685,6 +908,7 @@
         }
 
         filtered.forEach(e => {
+            const currSymbol = (e.currency === 'USD') ? '$' : 'د.ع';
             const li = document.createElement('li');
             li.className = 'item-card';
             li.innerHTML = `
@@ -694,7 +918,7 @@
                     ${e.note ? `<span class="item-note">💬 ${e.note}</span>` : ''}
                 </div>
                 <div style="display:flex; align-items:center;">
-                    <span class="item-amount">${e.amount.toLocaleString()}</span>
+                    <span class="item-amount">${e.amount.toLocaleString()} ${currSymbol}</span>
                     ${viewingMonthKey === 'current' ? `<button class="btn-delete" onclick="deleteExpense(${e.id})">✕</button>` : ''}
                 </div>
             `;
@@ -708,8 +932,8 @@
         const data = getActiveData();
         const expenses = data.expenses || [];
         if (expenses.length === 0) { alert('هیچ مەسرەفێک نییە'); return; }
-        let csv = '\uFEFFکتێگۆری,تفاسیل,بەروار,بڕی پارە,تێبینی\n';
-        expenses.forEach(e => { csv += `"${e.category}","${e.detail}","${e.date}","${e.amount}","${e.note || ''}"\n`; });
+        let csv = '\uFEFFکتێگۆری,تفاسیل,بەروار,بڕی پارە,دراو,تێبینی\n';
+        expenses.forEach(e => { csv += `"${e.category}","${e.detail}","${e.date}","${e.amount}","${e.currency || 'IQD'}","${e.note || ''}"\n`; });
         const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement('a');
         link.href = URL.createObjectURL(blob);
