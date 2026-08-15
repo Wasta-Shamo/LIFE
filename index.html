@@ -90,14 +90,18 @@
             padding: 10px;
             border-radius: 12px;
             font-size: 11px;
+            line-height: 1.6;
         }
 
         .account-card-title {
             color: var(--text-sub);
-            font-size: 10px;
+            font-size: 11px;
             margin-bottom: 5px;
             display: flex;
             justify-content: space-between;
+            font-weight: bold;
+            border-bottom: 1px dashed var(--card-border);
+            padding-bottom: 4px;
         }
 
         .glass-box {
@@ -216,6 +220,12 @@
         .bar-bg { background: rgba(255,255,255,0.05); border-radius: 10px; height: 8px; overflow: hidden; }
         .bar-fill { height: 100%; border-radius: 10px; background: var(--primary-gradient); width: 0%; transition: width 0.4s ease; }
 
+        .input-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
         @media print {
             body { background-color: #fff !important; color: #000 !important; padding: 0 !important; }
             .glass-box, .stat-card { background: #fff !important; border: 1px solid #ccc !important; color: #000 !important; box-shadow: none !important; }
@@ -255,7 +265,7 @@
 <div class="dashboard-grid">
     <div class="stat-card income">
         <span>مووچەی مانگانە</span>
-        <strong id="disp-salary">0 د.ع</strong>
+        <strong id="disp-salary">0 د.ع | 0$</strong>
     </div>
     <div class="stat-card daily">
         <span>داهاتی کاری ڕۆژانە</span>
@@ -275,12 +285,13 @@
 <div class="accounts-grid">
     <div class="account-card">
         <div class="account-card-title">💵 شوێنی کاش (نەقد)</div>
-        <div>جزدانی باخەڵ: <b id="disp-cash-iqd">0</b> د.ع | <b id="disp-cash-usd">0</b>$</div>
+        <div>جزدان: <b id="disp-cash-iqd">0</b> د.ع | <b id="disp-cash-usd">0</b> $</div>
+        <div>پاشەکەوت: <b id="disp-stashed-iqd">0</b> د.ع | <b id="disp-stashed-usd">0</b> $</div>
     </div>
     <div class="account-card">
         <div class="account-card-title">💳 حسابە بانکییەکان</div>
-        <div>Qi Card: <b id="disp-qi">0</b> د.ع</div>
-        <div>FIB: <b id="disp-fib">0</b> د.ع</div>
+        <div>Qi Card: <b id="disp-qi-iqd">0</b> د.ع | <b id="disp-qi-usd">0</b> $</div>
+        <div>FIB: <b id="disp-fib-iqd">0</b> د.ع | <b id="disp-fib-usd">0</b> $</div>
     </div>
 </div>
 
@@ -294,25 +305,80 @@
 <div class="glass-box main-input-field">
     <h2>💵 دیاریکردنی مووچەی مانگانە</h2>
     <div class="form-group">
-        <input type="number" id="salary-input" placeholder="بڕی مووچە (د.ع)">
+        <div class="input-row">
+            <div>
+                <label>مووچە (د.ع):</label>
+                <input type="number" id="salary-iqd-input" placeholder="0">
+            </div>
+            <div>
+                <label>مووچە ($):</label>
+                <input type="number" id="salary-usd-input" placeholder="0">
+            </div>
+        </div>
         <button class="btn-action" onclick="saveSalary()">تۆمارکردنی مووچە</button>
     </div>
 </div>
 
-<!-- BANK BALANCES ENTRY (کۆدی نوێ بۆ بانکەکان) -->
+<!-- CASH & STASH BALANCES ENTRY -->
+<div class="glass-box main-input-field" style="border-color: rgba(245, 158, 11, 0.3);">
+    <h2>👛 ڕێکخستنی پارەی نەقد (جزدان و کاشی هەڵگیراو)</h2>
+    <div class="form-group">
+        <label style="color:#f59e0b; font-weight:bold;">👛 پارەی ناو جزدانی باخەڵ:</label>
+        <div class="input-row">
+            <div>
+                <label>دینار (د.ع):</label>
+                <input type="number" id="cash-iqd-input" placeholder="0">
+            </div>
+            <div>
+                <label>دۆلار ($):</label>
+                <input type="number" id="cash-usd-input" placeholder="0">
+            </div>
+        </div>
+
+        <label style="color:#f59e0b; font-weight:bold; margin-top:5px;">🏺 کاشی هەڵگیراو (پاشەکەوت):</label>
+        <div class="input-row">
+            <div>
+                <label>دینار (د.ع):</label>
+                <input type="number" id="stash-iqd-input" placeholder="0">
+            </div>
+            <div>
+                <label>دۆلار ($):</label>
+                <input type="number" id="stash-usd-input" placeholder="0">
+            </div>
+        </div>
+
+        <button class="btn-action" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);" onclick="saveCashBalances()">نوێکردنەوەی جزدان و پاشەکەوت</button>
+    </div>
+</div>
+
+<!-- BANK BALANCES ENTRY -->
 <div class="glass-box main-input-field" style="border-color: rgba(16, 185, 129, 0.3);">
     <h2>💳 ڕێکخستنی پارەی ناو کارتە بانکییەکان</h2>
     <div class="form-group">
-        <div style="display: flex; gap: 10px;">
-            <div style="flex:1;">
-                <label>پارەی Qi Card (د.ع):</label>
-                <input type="number" id="qi-input" placeholder="0">
+        <label style="color:#10b981; font-weight:bold;">💳 پارەی Qi Card:</label>
+        <div class="input-row">
+            <div>
+                <label>دینار (د.ع):</label>
+                <input type="number" id="qi-iqd-input" placeholder="0">
             </div>
-            <div style="flex:1;">
-                <label>پارەی FIB (د.ع):</label>
-                <input type="number" id="fib-input" placeholder="0">
+            <div>
+                <label>دۆلار ($):</label>
+                <input type="number" id="qi-usd-input" placeholder="0">
             </div>
         </div>
+
+        <label style="color:#10b981; font-weight:bold; margin-top:5px;">🏦 پارەی FIB:</label>
+        <div class="input-row">
+            <div>
+                <label>دینار (د.ع):</label>
+                <input type="number" id="fib-iqd-input" placeholder="0">
+            </div>
+            <div>
+                <label>دۆلار ($):</label>
+                <input type="number" id="fib-usd-input" placeholder="0">
+            </div>
+        </div>
+
         <button class="btn-action" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);" onclick="saveBankBalances()">نوێکردنەوەی هەژمارە بانکییەکان</button>
     </div>
 </div>
@@ -327,12 +393,12 @@
             <option value="sell">🏷️ فرۆشتنی دۆلار (دانی دۆلار ⬅️ وەرگرتنی دینار)</option>
         </select>
         
-        <div style="display: flex; gap: 10px;">
-            <div style="flex:1;">
+        <div class="input-row">
+            <div>
                 <label>بڕی دۆلار ($):</label>
                 <input type="number" id="trade-usd" placeholder="نموونە: 100">
             </div>
-            <div style="flex:1;">
+            <div>
                 <label>نرخی ئاڵوگۆڕ (بەرامبەر 100$):</label>
                 <input type="number" id="trade-rate" placeholder="نموونە: 151000">
             </div>
@@ -349,12 +415,12 @@
         <label>ناوی کار:</label>
         <input type="text" id="task-name" placeholder="ناوی کارەکە...">
         
-        <div style="display: flex; gap: 10px;">
-            <div style="flex:1;">
+        <div class="input-row">
+            <div>
                 <label>بەروار:</label>
                 <input type="date" id="task-date">
             </div>
-            <div style="flex:1;">
+            <div>
                 <label>کات (سەعات):</label>
                 <input type="time" id="task-time">
             </div>
@@ -510,7 +576,14 @@
 
     let appData = JSON.parse(localStorage.getItem('smartAppData')) || {
         currentMonth: getCurrentMonthKey(),
-        currentData: { salary: 0, qiBalance: 0, fibBalance: 0, expenses: [], tasks: [], trades: [] },
+        currentData: { 
+            salaryIQD: 0, salaryUSD: 0,
+            qiIQD: 0, qiUSD: 0, 
+            fibIQD: 0, fibUSD: 0, 
+            cashIQD: 0, cashUSD: 0, 
+            stashIQD: 0, stashUSD: 0, 
+            expenses: [], tasks: [], trades: [] 
+        },
         archives: {}
     };
 
@@ -540,7 +613,14 @@
             if (!appData.archives) appData.archives = {};
             appData.archives[appData.currentMonth] = JSON.parse(JSON.stringify(appData.currentData));
             appData.currentMonth = nowKey;
-            appData.currentData = { salary: 0, qiBalance: 0, fibBalance: 0, expenses: [], tasks: [], trades: [] };
+            appData.currentData = { 
+                salaryIQD: 0, salaryUSD: 0,
+                qiIQD: 0, qiUSD: 0, 
+                fibIQD: 0, fibUSD: 0, 
+                cashIQD: 0, cashUSD: 0, 
+                stashIQD: 0, stashUSD: 0, 
+                expenses: [], tasks: [], trades: [] 
+            };
             saveData();
         }
     }
@@ -570,27 +650,41 @@
 
     function getActiveData() {
         if (viewingMonthKey === 'current') return appData.currentData;
-        return appData.archives[viewingMonthKey] || { salary: 0, qiBalance: 0, fibBalance: 0, expenses: [], tasks: [], trades: [] };
+        return appData.archives[viewingMonthKey] || { 
+            salaryIQD: 0, salaryUSD: 0, qiIQD: 0, qiUSD: 0, fibIQD: 0, fibUSD: 0, cashIQD: 0, cashUSD: 0, stashIQD: 0, stashUSD: 0, expenses: [], tasks: [], trades: [] 
+        };
     }
 
     function saveSalary() {
         if (viewingMonthKey !== 'current') return;
-        const val = parseFloat(document.getElementById('salary-input').value);
-        if (!isNaN(val) && val >= 0) {
-            appData.currentData.salary = val;
-            saveData();
-            updateUI();
-        }
+        const valIQD = parseFloat(document.getElementById('salary-iqd-input').value) || 0;
+        const valUSD = parseFloat(document.getElementById('salary-usd-input').value) || 0;
+
+        appData.currentData.salaryIQD = valIQD;
+        appData.currentData.salaryUSD = valUSD;
+        saveData();
+        updateUI();
     }
 
-    // Save Bank Balances (Qi & FIB)
+    // Save Cash Balances (Wallet & Stash USD/IQD)
+    function saveCashBalances() {
+        if (viewingMonthKey !== 'current') return;
+        appData.currentData.cashIQD = parseFloat(document.getElementById('cash-iqd-input').value) || 0;
+        appData.currentData.cashUSD = parseFloat(document.getElementById('cash-usd-input').value) || 0;
+        appData.currentData.stashIQD = parseFloat(document.getElementById('stash-iqd-input').value) || 0;
+        appData.currentData.stashUSD = parseFloat(document.getElementById('stash-usd-input').value) || 0;
+
+        saveData();
+        updateUI();
+    }
+
+    // Save Bank Balances (Qi & FIB USD/IQD)
     function saveBankBalances() {
         if (viewingMonthKey !== 'current') return;
-        const qiVal = parseFloat(document.getElementById('qi-input').value) || 0;
-        const fibVal = parseFloat(document.getElementById('fib-input').value) || 0;
-
-        appData.currentData.qiBalance = qiVal;
-        appData.currentData.fibBalance = fibVal;
+        appData.currentData.qiIQD = parseFloat(document.getElementById('qi-iqd-input').value) || 0;
+        appData.currentData.qiUSD = parseFloat(document.getElementById('qi-usd-input').value) || 0;
+        appData.currentData.fibIQD = parseFloat(document.getElementById('fib-iqd-input').value) || 0;
+        appData.currentData.fibUSD = parseFloat(document.getElementById('fib-usd-input').value) || 0;
 
         saveData();
         updateUI();
@@ -761,22 +855,34 @@
         const tasks = data.tasks || [];
         const trades = data.trades || [];
 
-        // Totals
+        // Totals Expenses
         let expIQD = 0, expUSD = 0;
         expenses.forEach(e => {
             if (e.currency === 'USD') expUSD += e.amount;
             else expIQD += e.amount;
         });
 
+        // Totals Daily Income
         let taskIQD = 0, taskUSD = 0;
         tasks.forEach(t => {
             if (t.currency === 'USD') taskUSD += (t.amount || 0);
             else taskIQD += (t.amount || 0);
         });
 
-        const salaryIQD = data.salary || 0;
-        const qiVal = data.qiBalance || 0;
-        const fibVal = data.fibBalance || 0;
+        const salaryIQD = data.salaryIQD || (typeof data.salary === 'number' ? data.salary : 0);
+        const salaryUSD = data.salaryUSD || 0;
+
+        const qiIQD = data.qiIQD || (typeof data.qiBalance === 'number' ? data.qiBalance : 0);
+        const qiUSD = data.qiUSD || 0;
+
+        const fibIQD = data.fibIQD || (typeof data.fibBalance === 'number' ? data.fibBalance : 0);
+        const fibUSD = data.fibUSD || 0;
+
+        const cashIQD = data.cashIQD || (typeof data.cashInWallet === 'number' ? data.cashInWallet : 0);
+        const cashUSD = data.cashUSD || 0;
+
+        const stashIQD = data.stashIQD || (typeof data.stashedCash === 'number' ? data.stashedCash : 0);
+        const stashUSD = data.stashUSD || 0;
 
         // Trade Calculation
         let tradeIQDCost = 0;
@@ -792,56 +898,77 @@
         });
 
         const totalIncomeIQD = salaryIQD + taskIQD;
-        const netIQD = totalIncomeIQD - (expIQD + tradeIQDCost);
-        const netUSD = taskUSD + tradeUSDGained - expUSD;
+        const totalIncomeUSD = salaryUSD + taskUSD;
 
-        // Cash In Pocket = Net IQD minus Bank Balances
-        const cashInPocketIQD = netIQD - (qiVal + fibVal);
+        const netIQD = totalIncomeIQD - (expIQD + tradeIQDCost);
+        const netUSD = totalIncomeUSD + tradeUSDGained - expUSD;
 
         // Display Main Stats
-        document.getElementById('disp-salary').innerText = salaryIQD.toLocaleString() + ' د.ع';
-        document.getElementById('disp-daily-income').innerText = `${taskIQD.toLocaleString()} د.ع | ${taskUSD}$`;
-        document.getElementById('disp-expenses').innerText = `${(expIQD + tradeIQDCost).toLocaleString()} د.ع | ${expUSD}$`;
-        document.getElementById('disp-balance').innerText = `${netIQD.toLocaleString()} د.ع | ${netUSD}$`;
+        document.getElementById('disp-salary').innerText = `${salaryIQD.toLocaleString()} د.ع | ${salaryUSD.toLocaleString()}$`;
+        document.getElementById('disp-daily-income').innerText = `${taskIQD.toLocaleString()} د.ع | ${taskUSD.toLocaleString()}$`;
+        document.getElementById('disp-expenses').innerText = `${(expIQD + tradeIQDCost).toLocaleString()} د.ع | ${expUSD.toLocaleString()}$`;
+        document.getElementById('disp-balance').innerText = `${netIQD.toLocaleString()} د.ع | ${netUSD.toLocaleString()}$`;
 
         // Accounts Breakdown
-        document.getElementById('disp-cash-iqd').innerText = cashInPocketIQD.toLocaleString();
-        document.getElementById('disp-cash-usd').innerText = netUSD;
-        document.getElementById('disp-qi').innerText = qiVal.toLocaleString();
-        document.getElementById('disp-fib').innerText = fibVal.toLocaleString();
+        document.getElementById('disp-cash-iqd').innerText = cashIQD.toLocaleString();
+        document.getElementById('disp-cash-usd').innerText = cashUSD.toLocaleString();
+        
+        document.getElementById('disp-stashed-iqd').innerText = stashIQD.toLocaleString();
+        document.getElementById('disp-stashed-usd').innerText = stashUSD.toLocaleString();
+
+        document.getElementById('disp-qi-iqd').innerText = qiIQD.toLocaleString();
+        document.getElementById('disp-qi-usd').innerText = qiUSD.toLocaleString();
+
+        document.getElementById('disp-fib-iqd').innerText = fibIQD.toLocaleString();
+        document.getElementById('disp-fib-usd').innerText = fibUSD.toLocaleString();
 
         // Calculate Past Archives Total
         let pastIQD = 0, pastUSD = 0;
         if (appData.archives) {
             Object.values(appData.archives).forEach(arc => {
-                const aSalary = arc.salary || 0;
+                const aSalaryIQD = arc.salaryIQD || arc.salary || 0;
+                const aSalaryUSD = arc.salaryUSD || 0;
+
                 let aExpIQD = 0, aExpUSD = 0;
                 (arc.expenses || []).forEach(e => {
                     if (e.currency === 'USD') aExpUSD += e.amount;
                     else aExpIQD += e.amount;
                 });
+
                 let aTaskIQD = 0, aTaskUSD = 0;
                 (arc.tasks || []).forEach(t => {
                     if (t.currency === 'USD') aTaskUSD += (t.amount || 0);
                     else aTaskIQD += (t.amount || 0);
                 });
+
                 let aTradeIQD = 0, aTradeUSD = 0;
                 (arc.trades || []).forEach(tr => {
                     if (tr.type === 'buy') { aTradeIQD += tr.iqdCost; aTradeUSD += tr.usdAmount; }
                     else { aTradeIQD -= tr.iqdCost; aTradeUSD -= tr.usdAmount; }
                 });
 
-                pastIQD += (aSalary + aTaskIQD) - (aExpIQD + aTradeIQD);
-                pastUSD += aTaskUSD + aTradeUSD - aExpUSD;
+                pastIQD += (aSalaryIQD + aTaskIQD) - (aExpIQD + aTradeIQD);
+                pastUSD += (aSalaryUSD + aTaskUSD + aTradeUSD) - aExpUSD;
             });
         }
         document.getElementById('disp-past-iqd').innerText = pastIQD.toLocaleString();
         document.getElementById('disp-past-usd').innerText = pastUSD.toLocaleString();
 
         if (viewingMonthKey === 'current') {
-            document.getElementById('salary-input').value = salaryIQD || '';
-            document.getElementById('qi-input').value = qiVal || '';
-            document.getElementById('fib-input').value = fibVal || '';
+            document.getElementById('salary-iqd-input').value = salaryIQD || '';
+            document.getElementById('salary-usd-input').value = salaryUSD || '';
+
+            document.getElementById('qi-iqd-input').value = qiIQD || '';
+            document.getElementById('qi-usd-input').value = qiUSD || '';
+
+            document.getElementById('fib-iqd-input').value = fibIQD || '';
+            document.getElementById('fib-usd-input').value = fibUSD || '';
+
+            document.getElementById('cash-iqd-input').value = cashIQD || '';
+            document.getElementById('cash-usd-input').value = cashUSD || '';
+
+            document.getElementById('stash-iqd-input').value = stashIQD || '';
+            document.getElementById('stash-usd-input').value = stashUSD || '';
         }
 
         renderAnalytics(expIQD + tradeIQDCost);
